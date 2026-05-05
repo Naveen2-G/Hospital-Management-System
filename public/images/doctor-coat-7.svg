@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="t7 d7">
+<title id="t7">Doctor portrait 7</title><desc id="d7">Portrait illustration of a doctor wearing a white coat.</desc>
+<rect width="100%" height="100%" fill="#f8fafc"/>
+<g transform="translate(40,20)">
+  <circle cx="60" cy="40" r="30" fill="#bfdbfe"/>
+  <rect x="18" y="70" width="84" height="58" rx="8" fill="#ffffff" stroke="#e6e6e6" stroke-width="2"/>
+  <path d="M45 86c6 6 20 6 30 0" stroke="#f3f4f6" stroke-width="4" stroke-linecap="round"/>
+</g>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="t8 d8">
+<title id="t8">Doctor portrait 8</title><desc id="d8">Portrait illustration of a doctor wearing a white coat.</desc>
+<rect width="100%" height="100%" fill="#fff7ed"/>
+<g transform="translate(40,20)">
+  <ellipse cx="60" cy="40" rx="30" ry="34" fill="#fecaca"/>
+  <rect x="18" y="70" width="84" height="58" rx="8" fill="#ffffff" stroke="#e6e6e6" stroke-width="2"/>
+  <circle cx="60" cy="40" r="6" fill="#fff" opacity="0.65"/>
+</g>
+</svg>
