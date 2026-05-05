@@ -11,18 +11,27 @@ class LabReportController extends Controller
     public function show(LabOrder $labOrder)
     {
         $user = Auth::user();
-        abort_unless($user, 403);
+        if (! $user) {
+            abort(403);
+        }
 
         $isAdmin = $user->role === 'admin';
         $isDoctorOwner = $user->role === 'doctor' && $user->doctor && $user->doctor->id === $labOrder->doctor_id;
 
-        abort_unless($isAdmin || $isDoctorOwner, 403);
+        if (! ($isAdmin || $isDoctorOwner)) {
+            abort(403);
+        }
 
-        abort_if(! $labOrder->report_file, 404, 'Report file not found.');
-        abort_if(! Storage::disk('public')->exists($labOrder->report_file), 404, 'Report file not found.');
+        if (! $labOrder->report_file) {
+            abort(404, 'Report file not found.');
+        }
+
+        if (! Storage::disk('public')->exists($labOrder->report_file)) {
+            abort(404, 'Report file not found.');
+        }
 
         $filePath = Storage::disk('public')->path($labOrder->report_file);
-        $mimeType = Storage::disk('public')->mimeType($labOrder->report_file) ?? 'application/octet-stream';
+        $mimeType = @mime_content_type($filePath) ?: 'application/octet-stream';
 
         return response()->file($filePath, [
             'Content-Type' => $mimeType,

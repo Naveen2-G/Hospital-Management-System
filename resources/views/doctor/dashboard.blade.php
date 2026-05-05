@@ -47,8 +47,6 @@
                         <span class="rounded-full border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700">{{ $doctorQualification }}</span>
                         <span class="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 font-semibold text-emerald-700">{{ $doctorDepartment }}</span>
                     </div>
-
-<x-doctor.stats-cards :stats="$stats" />
                 </div>
 
                 <div class="relative overflow-hidden rounded-4xl border border-slate-200 bg-slate-950 text-white shadow-2xl">
@@ -119,7 +117,7 @@
             </div>
 
             {{-- Reports & Performance --}}
-            <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+            <div id="reports" class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
                 <div class="flex items-center justify-between gap-3 mb-6">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Reports & performance</p>
@@ -147,7 +145,7 @@
             </div>
 
             {{-- Notifications & Clinical Alerts --}}
-            <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+            <div id="notifications" class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
                 <div class="flex items-center gap-3 mb-6">
                     <span class="rounded-2xl bg-rose-50 p-3 text-rose-700">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -181,7 +179,7 @@
             </div>
 
             {{-- Schedule Management & Weekly Availability --}}
-            <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+            <div id="schedule" class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
                 <div class="mb-6">
                     <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Schedule management</p>
                     <h3 class="text-2xl font-bold text-slate-900">Weekly availability</h3>
@@ -206,7 +204,7 @@
             </div>
 
             {{-- Patient Management --}}
-            <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+            <div id="patients" class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
                 <div class="flex items-center justify-between gap-3 mb-6">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Patient management</p>
@@ -426,30 +424,6 @@
                         </div>
                         <button type="submit" class="btn btn-primary w-full">Save consultation</button>
                     </form>
-                </div>
-
-                <div class="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-950 text-white shadow-xl">
-                    <div class="bg-[linear-gradient(160deg,rgba(8,15,32,0.88),rgba(8,15,32,0.55)),url('{{ asset('images/consultation.png') }}')] bg-cover bg-center p-6">
-                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Consultation management</p>
-                        <h3 class="mt-2 text-2xl font-bold">Doctor workflow</h3>
-                        <div class="mt-5 space-y-4">
-                        @php
-                            $workflow = [
-                                'Open patient profile and review history',
-                                'Add symptoms, observations, and diagnosis',
-                                'Create or update prescription',
-                                'Request lab tests if required',
-                                'Save consultation and finalize visit history',
-                            ];
-                        @endphp
-                        @foreach($workflow as $index => $step)
-                            <div class="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-                                <div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cyan-400/15 text-sm font-bold text-cyan-200">{{ $index + 1 }}</div>
-                                <p class="text-sm text-slate-100">{{ $step }}</p>
-                            </div>
-                        @endforeach
-                        </div>
-                    </div>
                 </div>
 
                 <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
@@ -790,29 +764,7 @@
         </section>
 
         {{-- Schedule & Notifications Section --}}
-        <section id="schedule" class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Schedule management</p>
-                <h3 class="text-2xl font-bold text-slate-900">Weekly availability (detailed)</h3>
-            </div>
-            <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                @foreach($weeklyAvailability as $day)
-                    <div class="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <p class="font-semibold text-slate-900">{{ $day['day'] }}</p>
-                            <span class="rounded-full {{ $day['available'] ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }} px-3 py-1 text-xs font-semibold">
-                                {{ $day['available'] ? 'Available' : 'Blocked' }}
-                            </span>
-                        </div>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            @foreach($day['slots'] as $slot)
-                                <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">{{ $slot }}</span>
-                            @endforeach
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </section>
+        <!-- Weekly availability (detailed) removed (duplicate) -->
 
         {{-- Notifications & Alerts Section --}}
 

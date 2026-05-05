@@ -176,10 +176,10 @@ $prescription->load(['patient', 'doctor', 'items.medicine', 'appointment']);
         return view('doctor.prescriptions.print', [
             'prescription' => $prescription,
             'hospital' => [
-                'name' => 'Hospital Management System',
-                'address' => '123 Medical Plaza',
-                'phone' => '+1-800-HOSPITAL',
-                'email' => 'info@hospital.com',
+                'name' => 'HMS',
+                'address' => '123 Medical Avenue, Healthcare District, New Delhi 110001',
+                'phone' => '+91 1800-123-4567',
+                'email' => 'info@hms-hospital.com',
             ]
         ]);
     }
