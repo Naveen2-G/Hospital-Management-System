@@ -9,30 +9,118 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    @vite(['resources/js/doctor.js'])
+    <style>
+        #doctor-profile-modal,
+    #doctor-password-modal,
+    #patient-drawer,
+    #patient-drawer-overlay {
+        display: none !important;
+    }
+
+        #doctor-page-loader {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.12s ease;
+            z-index: 70;
+        }
+
+        #doctor-app-shell {
+            visibility: visible;
+        }
+
+        #doctor-page-loader .doctor-spinner {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 9999px;
+            border: 4px solid #dbe2ea;
+            border-top-color: #2563eb;
+            animation: doctor-spin 1s linear infinite;
+        }
+
+        @keyframes doctor-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        body.doctor-loading #doctor-page-loader {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        body.doctor-loading {
+            background: #ffffff !important;
+        }
+
+        body.doctor-loading #doctor-app-shell {
+            visibility: hidden;
+        }
+    </style>
+    <!-- @vite(['resources/js/doctor.js']) -->
+     @vite(['resources/css/admin.css', 'resources/js/doctor.js'])
 </head>
-<body class="min-h-screen font-sans bg-slate-50 text-slate-900 antialiased" style="background: radial-gradient(circle at top left, rgba(59,130,246,0.10), transparent 28%), radial-gradient(circle at top right, rgba(14,165,233,0.08), transparent 30%), linear-gradient(140deg, #f8fafc 0%, #f3f7ff 52%, #f8fafc 100%);">
+<body class="doctor-loading min-h-screen font-sans bg-slate-50 text-slate-900 antialiased" style="background: radial-gradient(circle at top left, rgba(59,130,246,0.10), transparent 28%), radial-gradient(circle at top right, rgba(14,165,233,0.08), transparent 30%), linear-gradient(140deg, #f8fafc 0%, #f3f7ff 52%, #f8fafc 100%);">
     @php use Illuminate\Support\Facades\Auth; @endphp
 
-    @php
-        $user = Auth::user();
-        $doctorName = $doctor?->name ?? $user->name ?? 'Doctor';
-        $specialization = $doctor?->specialization ?? 'General Practice';
-        $qualification = $doctor?->qualification ?? 'Clinical Practitioner';
-        $departmentName = $doctor?->department?->name ?? 'Core care team';
-        $unreadCount = $user ? $user->notifications()->where('is_read', false)->count() : 0;
-        $changePasswordErrors = $errors->changePassword ?? null;
-        $profileDetails = [
-            'name' => $doctorName,
-            'specialization' => $specialization,
-            'qualification' => $qualification,
-            'department' => $departmentName,
-            'phone' => $doctor?->phone ?? 'Not provided',
-            'email' => $doctor?->email ?? $user->email ?? '—',
-        ];
-    @endphp
+    <div id="doctor-page-loader">
+        <div class="flex flex-col items-center gap-4 rounded-3xl px-6 py-5">
+            <div class="doctor-spinner"></div>
+            <p class="text-sm font-semibold text-slate-500">Loading...</p>
+        </div>
+    </div>
 
-    <div class="min-h-screen">
+    <div id="doctor-app-shell" class="min-h-screen">
+        @php
+            $user = Auth::user();
+            $doctorName = $doctor?->name ?? $user->name ?? 'Doctor';
+            $specialization = $doctor?->specialization ?? 'General Practice';
+            $qualification = $doctor?->qualification ?? 'Clinical Practitioner';
+            $departmentName = $doctor?->department?->name ?? 'Core care team';
+            $experienceYears = $doctor?->experience_years ?? 0;
+            $consultationFee = $doctor?->consultation_fee !== null ? number_format((float) $doctor->consultation_fee, 2) : null;
+            $doctorBio = trim((string) ($doctor?->bio ?? '')) !== '' ? $doctor->bio : 'No bio has been added yet.';
+            $availability = is_array($doctor?->availability) ? $doctor->availability : [];
+            $availabilityLabels = [
+                'mon' => 'Mon',
+                'tue' => 'Tue',
+                'wed' => 'Wed',
+                'thu' => 'Thu',
+                'fri' => 'Fri',
+                'sat' => 'Sat',
+                'sun' => 'Sun',
+            ];
+            $availabilitySummary = [];
+            foreach ($availabilityLabels as $key => $label) {
+                if (! empty($availability[$key]) && is_array($availability[$key])) {
+                    $availabilitySummary[] = [
+                        'day' => $label,
+                        'slots' => $availability[$key],
+                    ];
+                }
+            }
+            $doctorStats = [
+                'appointments' => $doctor?->appointments()->count() ?? 0,
+                'prescriptions' => $doctor?->prescriptions()->count() ?? 0,
+                'admissions' => $doctor?->admissions()->count() ?? 0,
+            ];
+            $unreadCount = $user ? $user->notifications()->where('is_read', false)->count() : 0;
+            $changePasswordErrors = $errors->changePassword ?? null;
+            $profileDetails = [
+                'name' => $doctorName,
+                'specialization' => $specialization,
+                'qualification' => $qualification,
+                'department' => $departmentName,
+                'phone' => $doctor?->phone ?? 'Not provided',
+                'email' => $doctor?->email ?? $user->email ?? '—',
+            ];
+        @endphp
+
         <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl shadow-sm">
             <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
@@ -117,7 +205,10 @@
                             nav::-webkit-scrollbar { display: none; }
                         </style>
                         @foreach($sidebarItems as $index => $item)
-                            <a href="{{ $item['href'] }}" data-doctor-nav-link class="doctor-nav-link group inline-flex shrink-0 items-center gap-2 rounded-xl border border-transparent bg-white/70 px-3 py-2 text-sm font-semibold text-slate-600 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 transition-all duration-200 {{ $index === 0 ? 'is-active border-sky-200 bg-sky-50 text-sky-700 underline decoration-2 decoration-sky-500 underline-offset-8 shadow-sm' : '' }}">
+                            @php
+                                $isActive = isset($item['route']) && request()->routeIs($item['route']);
+                            @endphp
+                            <a href="{{ $item['href'] }}" class="doctor-nav-link group inline-flex shrink-0 items-center gap-2 rounded-xl border border-transparent bg-white/70 px-3 py-2 text-sm font-semibold text-slate-600 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 transition-all duration-200 {{ $isActive ? 'is-active border-sky-200 bg-sky-50 text-sky-700 underline decoration-2 decoration-sky-500 underline-offset-8 shadow-sm' : '' }}">
                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}"/>
                                 </svg>
@@ -176,7 +267,7 @@
         </div>
 
         <div id="doctor-profile-modal" class="fixed inset-0 z-50 hidden bg-slate-950/55 px-4 backdrop-blur-sm" style="display: none;">
-            <div class="w-full max-w-2xl rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-2xl" style="margin: auto; display: flex; flex-direction: column;">
+            <div class="w-full max-w-4xl rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-2xl overflow-hidden" style="margin: auto; display: flex; flex-direction: column; max-height: 90vh;">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Profile</p>
@@ -185,30 +276,93 @@
                     <button type="button" data-doctor-profile-close class="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">Close</button>
                 </div>
 
-                <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4 sm:col-span-2">
-                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Name</p>
-                        <p class="mt-2 text-lg font-semibold text-slate-900">{{ $profileDetails['name'] }}</p>
+                <div class="mt-6 flex-1 overflow-y-auto pr-1 space-y-6">
+                    <div class="rounded-3xl border border-slate-200 bg-linear-to-br from-sky-50 to-white p-5">
+                        <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="flex h-16 w-16 items-center justify-center rounded-3xl bg-linear-to-br from-sky-500 to-blue-600 text-2xl font-bold text-white shadow-lg shadow-sky-500/25">
+                                    {{ strtoupper(mb_substr($profileDetails['name'], 0, 1)) }}
+                                </div>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Doctor</p>
+                                    <p class="mt-1 text-2xl font-bold text-slate-900">{{ $profileDetails['name'] }}</p>
+                                    <p class="text-sm text-slate-500">{{ $profileDetails['specialization'] }} · {{ $profileDetails['department'] }}</p>
+                                </div>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-3">
+                                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Experience</p>
+                                    <p class="mt-1 text-lg font-bold text-slate-900">{{ $experienceYears }} yrs</p>
+                                </div>
+                                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Fee</p>
+                                    <p class="mt-1 text-lg font-bold text-slate-900">{{ $consultationFee ? '₹'.$consultationFee : '—' }}</p>
+                                </div>
+                                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Status</p>
+                                    <p class="mt-1 text-lg font-bold text-emerald-600">{{ $doctor?->status ? ucfirst($doctor->status) : 'Active' }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
-                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Specialization</p>
-                        <p class="mt-2 font-semibold text-slate-900">{{ $profileDetails['specialization'] }}</p>
+
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
+                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Appointments</p>
+                            <p class="mt-2 text-3xl font-black text-slate-900">{{ $doctorStats['appointments'] }}</p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
+                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Prescriptions</p>
+                            <p class="mt-2 text-3xl font-black text-slate-900">{{ $doctorStats['prescriptions'] }}</p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
+                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Admissions</p>
+                            <p class="mt-2 text-3xl font-black text-slate-900">{{ $doctorStats['admissions'] }}</p>
+                        </div>
                     </div>
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
-                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Qualification</p>
-                        <p class="mt-2 font-semibold text-slate-900">{{ $profileDetails['qualification'] }}</p>
+
+                    <div class="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">About</p>
+                            <p class="mt-3 text-sm leading-7 text-slate-600">{{ $doctorBio }}</p>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-5">
+                            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Contact</p>
+                            <div class="mt-4 space-y-3 text-sm">
+                                <div class="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3">
+                                    <span class="text-slate-500">Phone</span>
+                                    <span class="font-semibold text-slate-900">{{ $profileDetails['phone'] }}</span>
+                                </div>
+                                <div class="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3">
+                                    <span class="text-slate-500">Email</span>
+                                    <span class="font-semibold text-slate-900">{{ $profileDetails['email'] }}</span>
+                                </div>
+                                <div class="flex items-center justify-between gap-4 rounded-2xl bg-white px-4 py-3">
+                                    <span class="text-slate-500">Qualification</span>
+                                    <span class="font-semibold text-slate-900">{{ $profileDetails['qualification'] }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
-                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Department</p>
-                        <p class="mt-2 font-semibold text-slate-900">{{ $profileDetails['department'] }}</p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
-                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Phone Number</p>
-                        <p class="mt-2 font-semibold text-slate-900">{{ $profileDetails['phone'] }}</p>
-                    </div>
-                    <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4 sm:col-span-2">
-                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Email</p>
-                        <p class="mt-2 font-semibold text-slate-900">{{ $profileDetails['email'] }}</p>
+
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-5">
+                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Availability</p>
+                        @if(count($availabilitySummary) > 0)
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                                @foreach($availabilitySummary as $day)
+                                    <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                                        <p class="font-semibold text-slate-900">{{ $day['day'] }}</p>
+                                        <div class="mt-2 flex flex-wrap gap-2">
+                                            @foreach($day['slots'] as $slot)
+                                                <span class="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">{{ $slot }}</span>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="mt-3 text-sm text-slate-500">No availability schedule has been set yet.</p>
+                        @endif
                     </div>
                 </div>
             </div>

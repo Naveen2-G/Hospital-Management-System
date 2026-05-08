@@ -1,6 +1,21 @@
 @extends('doctor.layouts.app')
 
-@section('title', 'Doctor Dashboard')
+@php
+    $sectionTitles = [
+        'overview' => 'Doctor Dashboard',
+        'appointments' => 'Appointments',
+        'patients' => 'Patients',
+        'consultations' => 'Consultations',
+        'prescriptions' => 'Prescriptions',
+        'labs' => 'Labs & EMR',
+        'schedule' => 'Schedule',
+        'notifications' => 'Notifications',
+        'reports' => 'Reports',
+    ];
+    $pageTitle = $sectionTitles[$activeSection ?? 'overview'] ?? 'Doctor Dashboard';
+@endphp
+
+@section('title', $pageTitle)
 
 @section('content')
     @php
@@ -24,61 +39,64 @@
     @endphp
 
     <div class="space-y-8">
-        {{-- Hero / Summary --}}
-        <section class="relative overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.20),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.15),transparent_30%)]"></div>
-            <div class="relative grid gap-6 xl:grid-cols-[1.25fr_0.75fr] p-6 sm:p-8 lg:p-10">
-                <div class="space-y-6">
-                    <div class="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-sky-700">
-                        Clinical command center
-                    </div>
-
-                    <div class="max-w-3xl">
-                        <h2 class="text-4xl sm:text-5xl font-black leading-tight tracking-tight text-slate-950">
-                            {{ $doctorName }}
-                        </h2>
-                        <p class="mt-4 max-w-2xl text-base sm:text-lg leading-8 text-slate-600">
-                            Manage appointments, consultations, prescriptions, EMR access, lab requests, and patient follow-ups from one calm, secure workspace.
-                        </p>
-                    </div>
-
-                    <div class="flex flex-wrap gap-3 text-sm">
-                        <span class="rounded-full border border-sky-200 bg-sky-50 px-4 py-2 font-semibold text-sky-700">{{ $doctorSpecialization }}</span>
-                        <span class="rounded-full border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700">{{ $doctorQualification }}</span>
-                        <span class="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 font-semibold text-emerald-700">{{ $doctorDepartment }}</span>
-                    </div>
-                </div>
-
-                <div class="relative overflow-hidden rounded-4xl border border-slate-200 bg-slate-950 text-white shadow-2xl">
-                    <div class="absolute inset-0 bg-[linear-gradient(160deg,rgba(2,6,23,0.55),rgba(2,6,23,0.15)),url('{{ asset('images/hero-medical.png') }}')] bg-cover bg-center"></div>
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(125,211,252,0.28),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.25),transparent_28%)]"></div>
-                    <div class="relative flex h-full min-h-96 flex-col justify-between p-6 sm:p-8">
-                        <div class="flex items-center justify-between gap-4">
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Today at a glance</p>
-                                <p class="mt-2 text-2xl font-bold">{{ now()->format('l') }}</p>
-                            </div>
-                            <div class="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-right backdrop-blur">
-                                <p class="text-xs uppercase tracking-[0.2em] text-cyan-200">Completion</p>
-                                <p class="mt-1 text-2xl font-black">{{ $stats['completion_rate'] }}%</p>
-                            </div>
+        @if(($activeSection ?? 'overview') === 'overview')
+            {{-- Hero / Summary --}}
+            <section class="relative overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.20),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.15),transparent_30%)]"></div>
+                <div class="relative grid gap-6 xl:grid-cols-[1.25fr_0.75fr] p-6 sm:p-8 lg:p-10">
+                    <div class="space-y-6">
+                        <div class="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-sky-700">
+                            Clinical command center
                         </div>
 
-                        <div class="grid gap-3 sm:grid-cols-2">
-                            <div class="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
-                                <p class="text-sm text-slate-200">Completed visits</p>
-                                <p class="mt-2 text-3xl font-black">{{ $stats['completed_consultations'] }}</p>
+                        <div class="max-w-3xl">
+                            <h2 class="text-4xl sm:text-5xl font-black leading-tight tracking-tight text-slate-950">
+                                {{ $doctorName }}
+                            </h2>
+                            <p class="mt-4 max-w-2xl text-base sm:text-lg leading-8 text-slate-600">
+                                Manage appointments, consultations, prescriptions, EMR access, lab requests, and patient follow-ups from one calm, secure workspace.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3 text-sm">
+                            <span class="rounded-full border border-sky-200 bg-sky-50 px-4 py-2 font-semibold text-sky-700">{{ $doctorSpecialization }}</span>
+                            <span class="rounded-full border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-700">{{ $doctorQualification }}</span>
+                            <span class="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 font-semibold text-emerald-700">{{ $doctorDepartment }}</span>
+                        </div>
+                    </div>
+
+                    <div class="relative overflow-hidden rounded-4xl border border-slate-200 bg-slate-950 text-white shadow-2xl">
+                        <div class="absolute inset-0 bg-[linear-gradient(160deg,rgba(2,6,23,0.55),rgba(2,6,23,0.15)),url('{{ asset('images/hero-medical.png') }}')] bg-cover bg-center"></div>
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(125,211,252,0.28),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.25),transparent_28%)]"></div>
+                        <div class="relative flex h-full min-h-96 flex-col justify-between p-6 sm:p-8">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Today at a glance</p>
+                                    <p class="mt-2 text-2xl font-bold">{{ now()->format('l') }}</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-right backdrop-blur">
+                                    <p class="text-xs uppercase tracking-[0.2em] text-cyan-200">Completion</p>
+                                    <p class="mt-1 text-2xl font-black">{{ $stats['completion_rate'] }}%</p>
+                                </div>
                             </div>
-                            <div class="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
-                                <p class="text-sm text-slate-200">Unread alerts</p>
-                                <p class="mt-2 text-3xl font-black">{{ $stats['unread_notifications'] }}</p>
+
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div class="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
+                                    <p class="text-sm text-slate-200">Completed visits</p>
+                                    <p class="mt-2 text-3xl font-black">{{ $stats['completed_consultations'] }}</p>
+                                </div>
+                                <div class="rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
+                                    <p class="text-sm text-slate-200">Unread alerts</p>
+                                    <p class="mt-2 text-3xl font-black">{{ $stats['unread_notifications'] }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        @endif
 
+        @if(($activeSection ?? 'overview') === 'overview')
         {{-- Overview KPIs --}}
         <section id="overview" class="space-y-8">
             <div class="flex flex-wrap items-end justify-between gap-3">
@@ -265,9 +283,33 @@
                 </div>
             </div>
         </section>
+        @endif
+
+        @if(($activeSection ?? 'overview') === 'patients')
+        <section id="patients" class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+            <div class="flex items-center justify-between gap-3 mb-6">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Patient management</p>
+                    <h3 class="text-2xl font-bold text-slate-900">Assigned patients</h3>
+                </div>
+                <div class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">{{ $stats['patients_handled'] }} tracked</div>
+            </div>
+
+            <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                @forelse($assignedPatients->take(6) as $patient)
+                    <x-doctor.patient-card :patient="$patient" :patient-history="$patientHistory" :patient-timeline="$patientTimeline" />
+                @empty
+                    <div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-slate-500 md:col-span-2 col-span-full">
+                        No assigned patients yet.
+                    </div>
+                @endforelse
+            </div>
+        </section>
+        @endif
 
 
 
+        @if(($activeSection ?? 'overview') === 'appointments')
         {{-- Appointments Section --}}
         <section id="appointments" class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -380,7 +422,9 @@
                     No appointments match the current search or filter.
                 </p>
         </section>
+        @endif
 
+        @if(($activeSection ?? 'overview') === 'consultations')
         {{-- Consultations Section --}}
         <section id="consultations" class="space-y-6">
             <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
@@ -485,10 +529,9 @@
                 </div>
             </div>
         </section>
+        @endif
 
-        {{-- Patients Section --}}
-
-
+        @if(($activeSection ?? 'overview') === 'prescriptions')
         {{-- Prescriptions Section --}}
         <section id="prescriptions" class="space-y-6">
             <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
@@ -659,7 +702,9 @@
                 </div>
             </div>
         </section>
+        @endif
 
+        @if(($activeSection ?? 'overview') === 'labs')
         {{-- Labs & EMR Section --}}
         <section id="labs" class="space-y-6">
             <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
@@ -762,6 +807,7 @@
                 </div>
             </div>
         </section>
+        @endif
 
         {{-- Schedule & Notifications Section --}}
         <!-- Weekly availability (detailed) removed (duplicate) -->

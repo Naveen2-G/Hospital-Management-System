@@ -187,6 +187,16 @@ Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.lo
 Route::prefix('doctor')->middleware(['auth'])->name('doctor.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/profile', [\App\Http\Controllers\Doctor\DashboardController::class, 'profile'])->name('profile');
+    Route::put('/profile', [\App\Http\Controllers\Doctor\DashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/appointments', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('appointments');
+    Route::get('/patients', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('patients');
+    Route::get('/consultations', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('consultations');
+    Route::get('/prescriptions', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('prescriptions');
+    Route::get('/labs', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('labs');
+    Route::get('/schedule', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('schedule');
+    Route::get('/notifications', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('notifications');
+    Route::get('/reports', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('reports');
     Route::post('/change-password', [\App\Http\Controllers\Doctor\ChangePasswordController::class, 'update'])->name('change-password.update');
 
     Route::post('/appointments/{appointment}/status', [\App\Http\Controllers\Doctor\ActionController::class, 'updateAppointmentStatus'])->name('appointments.status');

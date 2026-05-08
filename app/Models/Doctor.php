@@ -10,6 +10,7 @@ class Doctor extends Model
         'user_id', 'department_id', 'name', 'email', 'phone',
         'specialization', 'qualification', 'experience_years',
         'bio', 'image', 'consultation_fee', 'availability', 'status',
+        'employee_id', 'gender', 'dob', 'blood_group', 'address', 'joining_date',
     ];
 
         /**
@@ -22,6 +23,8 @@ class Doctor extends Model
         return [
             'availability' => 'array',
             'consultation_fee' => 'decimal:2',
+            'dob' => 'date',
+            'joining_date' => 'date',
         ];
     }
 
