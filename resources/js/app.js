@@ -423,7 +423,11 @@ if (loginForm) {
                 btn.classList.remove('from-primary-500', 'to-primary-600');
                 btn.classList.add('from-emerald-500', 'to-emerald-600');
                 setTimeout(() => {
-                    window.location.href = data.redirect || '/';
+                    if (sessionStorage.getItem('pendingAppointment')) {
+                        window.location.href = window.location.pathname + '?resume_booking=1';
+                    } else {
+                        window.location.href = data.redirect || '/';
+                    }
                 }, 800);
             } else {
                 // Show error
@@ -512,7 +516,11 @@ if (registerForm) {
 
             const redirect = payload?.redirect || '/patient/dashboard';
             setTimeout(() => {
-                window.location.href = redirect;
+                if (sessionStorage.getItem('pendingAppointment')) {
+                    window.location.href = window.location.pathname + '?resume_booking=1';
+                } else {
+                    window.location.href = redirect;
+                }
             }, 700);
         }).catch(() => {
             if (registerError) {
@@ -577,6 +585,25 @@ const step2Fields = {
     time: { el: document.getElementById('apt-time'), rules: [{ type: 'required', msg: 'Please select a time slot' }] },
 };
 Object.values(step2Fields).forEach(f => { if (f.el) addLiveValidation(f.el, f.rules); });
+
+// Handle department change for doctor filtering in regular appointment
+const aptDept = document.getElementById('apt-department');
+const aptDoc = document.getElementById('apt-doctor');
+
+if (aptDept && aptDoc) {
+    aptDept.addEventListener('change', () => {
+        const deptId = aptDept.value;
+        Array.from(aptDoc.options).forEach(opt => {
+            if (!opt.value) return; // Skip placeholder
+            if (!deptId || opt.dataset.dept === deptId) {
+                opt.style.display = '';
+            } else {
+                opt.style.display = 'none';
+            }
+        });
+        aptDoc.value = ''; // Reset doctor selection
+    });
+}
 
 // Step 1 → Step 2
 document.getElementById('apt-next-1')?.addEventListener('click', () => {
@@ -662,10 +689,24 @@ if (appointmentForm) {
                 },
                 body: formData,
             });
-            
+
+            if (response.status === 401 || response.status === 403) {
+                const dataToSave = Object.fromEntries(formData.entries());
+                sessionStorage.setItem('pendingAppointment', JSON.stringify(dataToSave));
+                
+                // Show inline message instead of closing modal
+                document.getElementById('apt-action-buttons')?.classList.add('hidden');
+                document.getElementById('apt-auth-required')?.classList.remove('hidden');
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                return;
+            }
+
             const data = await response.json();
             
             if (response.ok && data.success) {
+                sessionStorage.removeItem('pendingAppointment');
                 // Show success state
                 aptSteps.forEach(s => { if (s) s.classList.add('hidden'); });
                 if (aptSuccess) aptSuccess.classList.remove('hidden');
@@ -1133,3 +1174,60 @@ if (doctorCards.length > 0) {
         }
     }
 }
+
+// ═══════════════════════════════════════════════════════════════
+// ─── RESUME BOOKING INITIALIZATION ─────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('resume_booking') === '1') {
+        const dataStr = sessionStorage.getItem('pendingAppointment');
+        if (dataStr) {
+            try {
+                const data = JSON.parse(dataStr);
+                
+                // Populate the form fields manually since they have distinct IDs
+                const mapping = {
+                    'name': 'apt-name',
+                    'age': 'apt-age',
+                    'email': 'apt-email',
+                    'phone': 'apt-phone',
+                    'department': 'apt-department',
+                    'doctor': 'apt-doctor',
+                    'appointment_date': 'apt-date',
+                    'time_slot': 'apt-time',
+                    'notes': 'apt-reason'
+                };
+                
+                for (const [key, id] of Object.entries(mapping)) {
+                    const el = document.getElementById(id);
+                    if (el && data[key]) el.value = data[key];
+                }
+                
+                // Handle gender radio
+                if (data['gender']) {
+                    const radio = document.querySelector(`input[name="gender"][value="${data['gender']}"]`);
+                    if (radio) radio.checked = true;
+                }
+                
+                // Open modal and skip to Step 3
+                openModal('appointment-modal');
+                
+                // Wait slightly for modal to render, then simulate "Continue" clicks to populate summary
+                setTimeout(() => {
+                    document.getElementById('apt-next-1')?.click();
+                    document.getElementById('apt-next-2')?.click();
+                }, 100);
+                
+            } catch(e) {
+                console.error('Error restoring appointment data', e);
+            }
+        }
+        
+        // Clean URL
+        const url = new URL(window.location);
+        url.searchParams.delete('resume_booking');
+        window.history.replaceState({}, '', url.pathname + url.search);
+    }
+});

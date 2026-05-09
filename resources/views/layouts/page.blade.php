@@ -50,5 +50,6 @@
     @include('components.forgot-password-modal')
     @include('components.package-checkout-modal')
     @include('components.special-booking-modal')
+    @include('components.auth-required-modal')
 </body>
 </html>

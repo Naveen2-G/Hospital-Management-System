@@ -105,21 +105,32 @@
                             <label for="apt-department" class="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
                             <select id="apt-department" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer" required>
                                 <option value="">Select Department</option>
-                                <option value="cardiology">Cardiology</option>
-                                <option value="dermatology">Dermatology</option>
-                                <option value="neurology">Neurology</option>
-                                <option value="pediatrics">Pediatrics</option>
-                                <option value="orthopedics">Orthopedics</option>
-                                <option value="general">General Medicine</option>
-                                <option value="ent">ENT</option>
-                                <option value="gynecology">Gynecology</option>
-                                <option value="emergency">Emergency</option>
+                                @if(isset($departments))
+                                    @foreach($departments as $dept)
+                                        <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                    @endforeach
+                                @else
+                                    <option value="cardiology">Cardiology</option>
+                                    <option value="dermatology">Dermatology</option>
+                                    <option value="neurology">Neurology</option>
+                                    <option value="pediatrics">Pediatrics</option>
+                                    <option value="orthopedics">Orthopedics</option>
+                                    <option value="general">General Medicine</option>
+                                    <option value="ent">ENT</option>
+                                    <option value="gynecology">Gynecology</option>
+                                    <option value="emergency">Emergency</option>
+                                @endif
                             </select>
                         </div>
                         <div>
                             <label for="apt-doctor" class="block text-sm font-medium text-gray-700 mb-1.5">Preferred Doctor</label>
                             <select id="apt-doctor" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer" required>
                                 <option value="">Select Doctor</option>
+                                @if(isset($doctors))
+                                    @foreach($doctors as $doc)
+                                        <option value="{{ $doc->id }}" data-dept="{{ $doc->department_id }}">{{ $doc->name }} ({{ $doc->specialization }})</option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -177,13 +188,36 @@
                                 <div class="flex justify-between"><span class="text-gray-500">Time</span><span class="font-medium text-gray-900" id="summary-time">—</span></div>
                             </div>
                         </div>
-                        <div class="flex gap-3">
+                        <div class="flex gap-3" id="apt-action-buttons">
                             <button type="button" id="apt-back-3" class="flex-1 py-3.5 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
                                 ← Back
                             </button>
                             <button type="submit" class="flex-1 py-3.5 bg-gradient-to-r from-emerald-500 to-primary-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-primary-700 shadow-lg shadow-emerald-500/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
                                 ✓ Confirm Appointment
                             </button>
+                        </div>
+                        
+                        <!-- Inline Auth Message (Hidden by default) -->
+                        <div id="apt-auth-required" class="hidden mt-4 p-5 bg-orange-50 border border-orange-200 rounded-2xl">
+                            <div class="flex gap-4 items-start">
+                                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900 mb-1">Account Required</h4>
+                                    <p class="text-sm text-gray-600 mb-4">To confirm your appointment, you need to have an account. Your appointment details will be saved!</p>
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <button type="button" data-close-modal="appointment-modal" data-switch-modal="login-modal" class="flex-1 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-all">
+                                            Login
+                                        </button>
+                                        <button type="button" data-close-modal="appointment-modal" data-switch-modal="register-modal" class="flex-1 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all">
+                                            Create Account
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
