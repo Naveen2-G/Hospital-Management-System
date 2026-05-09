@@ -43,7 +43,9 @@
                 </div>
 
                 <!-- Form -->
-                <form id="appointment-form">
+                <form id="appointment-form" action="{{ route('patient.appointments.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" id="apt-type" name="appointment_type" value="regular">
                     <!-- Step 1: Patient Info -->
                     <div id="apt-step-1" class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -111,16 +113,13 @@
                                 <option value="general">General Medicine</option>
                                 <option value="ent">ENT</option>
                                 <option value="gynecology">Gynecology</option>
+                                <option value="emergency">Emergency</option>
                             </select>
                         </div>
                         <div>
                             <label for="apt-doctor" class="block text-sm font-medium text-gray-700 mb-1.5">Preferred Doctor</label>
                             <select id="apt-doctor" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer" required>
                                 <option value="">Select Doctor</option>
-                                <option value="dr-sharma">Dr. Rajesh Sharma — Cardiologist</option>
-                                <option value="dr-patel">Dr. Priya Patel — Dermatologist</option>
-                                <option value="dr-kumar">Dr. Anil Kumar — Neurologist</option>
-                                <option value="dr-reddy">Dr. Sneha Reddy — Pediatrician</option>
                             </select>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

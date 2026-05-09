@@ -1,10 +1,10 @@
 <!-- Special Booking Modal (Emergency & Video) -->
-<div id="special-booking-modal" class="fixed inset-0 z-[100] hidden">
+<div id="special-booking-modal" class="fixed inset-0 z-[100] hidden overflow-y-auto">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm modal-backdrop" data-close-modal="special-booking-modal"></div>
 
     <!-- Modal Content -->
-    <div class="relative flex items-center justify-center min-h-screen p-4 overflow-y-auto">
+    <div class="relative flex items-center justify-center min-h-screen p-4">
         <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up my-auto">
             <!-- Top decorative gradient -->
             <div id="special-modal-gradient" class="h-2 bg-gradient-to-r from-red-500 to-rose-600 transition-colors duration-300"></div>
@@ -38,6 +38,27 @@
                             <select id="sb-service" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer" required>
                                 <option value="Emergency">Emergency</option>
                                 <option value="Video Consultation">Video Consultation</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="sb-doctor-selection" class="hidden grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="sb-department" class="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
+                            <select id="sb-department" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer">
+                                <option value="">Select Department</option>
+                                @foreach(\App\Models\Department::all() as $dept)
+                                    <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="sb-doctor" class="block text-sm font-medium text-gray-700 mb-1.5">Doctor</label>
+                            <select id="sb-doctor" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer">
+                                <option value="">Select Doctor</option>
+                                @foreach(\App\Models\Doctor::all() as $doc)
+                                    <option value="{{ $doc->id }}" data-dept="{{ $doc->department_id }}">{{ $doc->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>

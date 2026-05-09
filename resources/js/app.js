@@ -303,17 +303,39 @@ document.querySelectorAll('[data-open-modal]').forEach(btn => {
                 const title = document.getElementById('special-modal-title');
                 const submitBtn = document.getElementById('sb-submit-btn');
 
-                if (specialType === 'Emergency') {
-                    gradient.className = 'h-2 bg-gradient-to-r from-red-500 to-rose-600 transition-colors duration-300';
-                    iconBg.className = 'w-14 h-14 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20 transition-colors duration-300';
-                    title.textContent = 'Emergency Booking';
-                    submitBtn.className = 'w-full py-3.5 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-rose-700 shadow-lg shadow-red-500/20 transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer mt-4';
-                } else if (specialType === 'Video Consultation') {
-                    gradient.className = 'h-2 bg-gradient-to-r from-emerald-500 to-teal-600 transition-colors duration-300';
-                    iconBg.className = 'w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20 transition-colors duration-300';
-                    title.textContent = 'Video Consultation';
-                    submitBtn.className = 'w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/20 transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer mt-4';
+                const sbDoctorSelection = document.getElementById('sb-doctor-selection');
+
+                function updateSpecialBookingUI(type) {
+                    if (type === 'Emergency') {
+                        gradient.className = 'h-2 bg-gradient-to-r from-red-500 to-rose-600 transition-colors duration-300';
+                        iconBg.className = 'w-14 h-14 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20 transition-colors duration-300';
+                        title.textContent = 'Emergency Booking';
+                        submitBtn.className = 'w-full py-3.5 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold rounded-xl hover:from-red-600 hover:to-rose-700 shadow-lg shadow-red-500/20 transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer mt-4';
+                        if (sbDoctorSelection) {
+                            sbDoctorSelection.classList.remove('hidden');
+                            sbDoctorSelection.classList.add('grid');
+                            document.getElementById('sb-department')?.setAttribute('required', 'required');
+                            document.getElementById('sb-doctor')?.setAttribute('required', 'required');
+                        }
+                    } else if (type === 'Video Consultation') {
+                        gradient.className = 'h-2 bg-gradient-to-r from-emerald-500 to-teal-600 transition-colors duration-300';
+                        iconBg.className = 'w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20 transition-colors duration-300';
+                        title.textContent = 'Video Consultation';
+                        submitBtn.className = 'w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/20 transition-all hover:shadow-xl hover:-translate-y-0.5 cursor-pointer mt-4';
+                        if (sbDoctorSelection) {
+                            sbDoctorSelection.classList.remove('hidden');
+                            sbDoctorSelection.classList.add('grid');
+                            document.getElementById('sb-department')?.setAttribute('required', 'required');
+                            document.getElementById('sb-doctor')?.setAttribute('required', 'required');
+                        }
+                    }
                 }
+
+                updateSpecialBookingUI(specialType);
+
+                document.getElementById('sb-service')?.addEventListener('change', (e) => {
+                    updateSpecialBookingUI(e.target.value);
+                });
             }
         }
 
@@ -430,6 +452,7 @@ if (loginForm) {
 
 const registerForm = document.getElementById('register-form');
 if (registerForm) {
+    const registerError = document.getElementById('register-error');
     const regFields = {
         firstName: { el: document.getElementById('reg-first-name'), rules: [{ type: 'required', msg: 'First name is mandatory' }] },
         lastName: { el: document.getElementById('reg-last-name'), rules: [{ type: 'required', msg: 'Last name is mandatory' }] },
@@ -443,6 +466,10 @@ if (registerForm) {
 
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        if (registerError) {
+            registerError.textContent = '';
+            registerError.classList.add('hidden');
+        }
         let valid = true;
         Object.values(regFields).forEach(f => { if (f.el && !validateField(f.el, f.rules)) valid = false; });
         if (regTerms && !validateCheckbox(regTerms, 'You must accept the Terms of Service')) valid = false;
@@ -452,19 +479,49 @@ if (registerForm) {
         const origText = btn.textContent;
         btn.textContent = 'Creating account...';
         btn.disabled = true;
-        setTimeout(() => {
+
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const formData = new FormData(registerForm);
+
+        fetch(registerForm.getAttribute('action') || '/register', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}),
+                'Accept': 'application/json',
+            },
+            body: formData,
+        }).then(async (res) => {
+            const payload = await res.json().catch(() => null);
+            if (!res.ok) {
+                const msg = payload?.message
+                    || (payload?.errors ? Object.values(payload.errors).flat()[0] : null)
+                    || 'Unable to create account. Please try again.';
+                if (registerError) {
+                    registerError.textContent = msg;
+                    registerError.classList.remove('hidden');
+                }
+                btn.textContent = origText;
+                btn.disabled = false;
+                return;
+            }
+
             btn.innerHTML = '✓ Account created!';
             btn.classList.remove('from-emerald-500', 'to-primary-600');
             btn.classList.add('from-emerald-500', 'to-emerald-600');
+
+            const redirect = payload?.redirect || '/patient/dashboard';
             setTimeout(() => {
-                closeModal('register-modal');
-                btn.textContent = origText;
-                btn.disabled = false;
-                btn.classList.remove('from-emerald-500', 'to-emerald-600');
-                btn.classList.add('from-emerald-500', 'to-primary-600');
-                registerForm.reset();
-            }, 1200);
-        }, 1000);
+                window.location.href = redirect;
+            }, 700);
+        }).catch(() => {
+            if (registerError) {
+                registerError.textContent = 'Network error. Please try again.';
+                registerError.classList.remove('hidden');
+            }
+            btn.textContent = origText;
+            btn.disabled = false;
+        });
     });
 }
 
@@ -557,38 +614,170 @@ document.getElementById('apt-back-3')?.addEventListener('click', () => showAptSt
 // Final submit
 const appointmentForm = document.getElementById('appointment-form');
 if (appointmentForm) {
-    appointmentForm.addEventListener('submit', (e) => {
+    appointmentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        aptSteps.forEach(s => { if (s) s.classList.add('hidden'); });
-        if (aptSuccess) aptSuccess.classList.remove('hidden');
-        stepIndicators.forEach(ind => {
-            if (!ind) return;
-            const circle = ind.querySelector('div');
-            circle.className = 'w-8 h-8 rounded-full bg-emerald-500 text-white text-sm font-bold flex items-center justify-center';
-            circle.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
-        });
+        
+        // Get the submit button
+        const submitBtn = appointmentForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Booking...';
+        
+        try {
+            // Collect form data
+            const formData = new FormData();
+            
+            // Get CSRF token
+            const csrfToken = document.querySelector('input[name="_token"]')?.value || appointmentForm._token?.value;
+            if (csrfToken) {
+                formData.append('_token', csrfToken);
+            }
+            
+            // Add all form fields
+            formData.append('name', document.getElementById('apt-name')?.value || '');
+            formData.append('age', document.getElementById('apt-age')?.value || '');
+            formData.append('email', document.getElementById('apt-email')?.value || '');
+            formData.append('phone', document.getElementById('apt-phone')?.value || '');
+            
+            // Get gender
+            const genderChecked = document.querySelector('input[name="gender"]:checked');
+            if (genderChecked) {
+                formData.append('gender', genderChecked.value);
+            }
+            
+            // Get department and doctor
+            formData.append('department', document.getElementById('apt-department')?.value || '');
+            formData.append('doctor', document.getElementById('apt-doctor')?.value || '');
+            formData.append('appointment_type', document.getElementById('apt-type')?.value || 'regular');
+            formData.append('appointment_date', document.getElementById('apt-date')?.value || '');
+            formData.append('time_slot', document.getElementById('apt-time')?.value || '');
+            formData.append('notes', document.getElementById('apt-reason')?.value || '');
+            
+            // Submit the form
+            const response = await fetch(appointmentForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                body: formData,
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                // Show success state
+                aptSteps.forEach(s => { if (s) s.classList.add('hidden'); });
+                if (aptSuccess) aptSuccess.classList.remove('hidden');
+                stepIndicators.forEach(ind => {
+                    if (!ind) return;
+                    const circle = ind.querySelector('div');
+                    circle.className = 'w-8 h-8 rounded-full bg-emerald-500 text-white text-sm font-bold flex items-center justify-center';
+                    circle.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+                });
+            } else {
+                // Show error message
+                const errorMsg = data.message || (data.errors && Object.values(data.errors)[0]?.[0]) || 'Something went wrong. Please try again.';
+                alert(errorMsg);
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        } catch (error) {
+            console.error('Appointment submission error:', error);
+            alert('Network error. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
     });
 }
 
 // Special Booking submit
 const specialBookingForm = document.getElementById('special-booking-form');
 if (specialBookingForm) {
-    specialBookingForm.addEventListener('submit', (e) => {
+    // Handle department change for doctor filtering
+    const sbDept = document.getElementById('sb-department');
+    const sbDoc = document.getElementById('sb-doctor');
+    
+    if (sbDept && sbDoc) {
+        sbDept.addEventListener('change', () => {
+            const deptId = sbDept.value;
+            Array.from(sbDoc.options).forEach(opt => {
+                if (!opt.value) return; // Skip placeholder
+                if (!deptId || opt.dataset.dept === deptId) {
+                    opt.style.display = '';
+                } else {
+                    opt.style.display = 'none';
+                }
+            });
+            sbDoc.value = ''; // Reset doctor selection
+        });
+    }
+
+    specialBookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const name = document.getElementById('sb-name');
         const phone = document.getElementById('sb-whatsapp');
         const reason = document.getElementById('sb-reason');
+        const service = document.getElementById('sb-service');
+        const dept = document.getElementById('sb-department');
+        const doc = document.getElementById('sb-doctor');
+        const submitBtn = document.getElementById('sb-submit-btn');
 
         let valid = true;
         if (!name.value.trim()) { valid = false; name.classList.add('input-error'); } else { name.classList.remove('input-error'); }
         if (!phone.value.trim() || !/^[0-9+\s()-]{10,15}$/.test(phone.value.trim())) { valid = false; phone.classList.add('input-error'); } else { phone.classList.remove('input-error'); }
         if (!reason.value.trim()) { valid = false; reason.classList.add('input-error'); } else { reason.classList.remove('input-error'); }
+        
+        if (!dept.value) { valid = false; dept.classList.add('input-error'); } else { dept.classList.remove('input-error'); }
+        if (!doc.value) { valid = false; doc.classList.add('input-error'); } else { doc.classList.remove('input-error'); }
 
         if (valid) {
-            specialBookingForm.classList.add('hidden');
-            const successDiv = document.getElementById('sb-success');
-            if (successDiv) successDiv.classList.remove('hidden');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('name', name.value.trim());
+                formData.append('phone', phone.value.trim());
+                formData.append('reason', reason.value.trim());
+                formData.append('service', service.value);
+                
+                formData.append('department', dept.value);
+                formData.append('doctor', doc.value);
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                if (csrfToken) {
+                    formData.append('_token', csrfToken);
+                }
+
+                const response = await fetch('/special-booking', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    specialBookingForm.classList.add('hidden');
+                    const successDiv = document.getElementById('sb-success');
+                    if (successDiv) successDiv.classList.remove('hidden');
+                } else {
+                    alert(data.message || 'Error submitting request.');
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Network error. Please try again later.');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         }
     });
 }
@@ -763,6 +952,56 @@ if (fpOtpForm) {
             showFpStep(fpStepReset);
             document.getElementById('fp-new-password')?.focus();
         }, 1000);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ─── PACKAGE CHECKOUT (Stripe) AJAX SUBMIT ───────────────────────
+// ═══════════════════════════════════════════════════════════════
+
+const packageCheckoutForm = document.getElementById('package-checkout-form');
+if (packageCheckoutForm) {
+    packageCheckoutForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btn = packageCheckoutForm.querySelector('button[type="submit"]');
+        const origText = btn.textContent;
+        btn.textContent = 'Redirecting to payment...';
+        btn.disabled = true;
+
+        try {
+            const formData = new FormData(packageCheckoutForm);
+            const resp = await fetch(packageCheckoutForm.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                body: formData,
+                redirect: 'follow'
+            });
+
+            // If server returns JSON with url, redirect there
+            const data = await resp.json().catch(() => null);
+            if (resp.ok && data && data.url) {
+                window.location.href = data.url;
+                return;
+            }
+
+            // If response was a redirect (non-AJAX fallback), follow it
+            if (resp.redirected && resp.url) {
+                window.location.href = resp.url;
+                return;
+            }
+
+            // Otherwise show an error
+            let msg = 'Unable to start payment. Please try again.';
+            if (data && data.message) msg = data.message;
+            alert(msg);
+        } catch (err) {
+            console.error('Checkout error', err);
+            alert('Network error while initiating payment.');
+        } finally {
+            btn.textContent = origText;
+            btn.disabled = false;
+        }
     });
 }
 

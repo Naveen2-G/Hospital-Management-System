@@ -40,6 +40,8 @@ class LoginController extends Controller
                 $redirect = route('admin.dashboard');
             } elseif ($user->role === 'doctor') {
                 $redirect = route('doctor.dashboard');
+            } elseif ($user->role === 'patient') {
+                $redirect = route('patient.dashboard');
             } else {
                 $redirect = url('/');
             }

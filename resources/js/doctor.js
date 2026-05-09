@@ -23,6 +23,7 @@ const patientDrawerOverlay = document.getElementById("patient-drawer-overlay");
 const closePatientDrawerButton = document.getElementById(
     "close-patient-drawer",
 );
+const pageLoader = document.getElementById("doctor-page-loader");
 const appShell = document.getElementById("doctor-app-shell");
 const profileToggleButton = document.querySelector(
     "[data-doctor-profile-toggle]",

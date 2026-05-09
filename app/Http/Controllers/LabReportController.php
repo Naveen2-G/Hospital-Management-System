@@ -17,8 +17,9 @@ class LabReportController extends Controller
 
         $isAdmin = $user->role === 'admin';
         $isDoctorOwner = $user->role === 'doctor' && $user->doctor && $user->doctor->id === $labOrder->doctor_id;
+        $isPatientOwner = $user->role === 'patient' && $user->patient && $user->patient->id === $labOrder->patient_id;
 
-        if (! ($isAdmin || $isDoctorOwner)) {
+        if (! ($isAdmin || $isDoctorOwner || $isPatientOwner)) {
             abort(403);
         }
 

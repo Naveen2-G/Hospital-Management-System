@@ -48,7 +48,12 @@
                 <tbody>
                     @foreach($appointments as $apt)
                     <tr>
-                        <td class="pl-6 font-medium text-gray-900">{{ $apt->patient->name ?? '—' }}</td>
+                        <td class="pl-6 font-medium text-gray-900">
+                            {{ $apt->patient_name }}
+                            @if(!$apt->patient_id)
+                                <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-medium bg-amber-100 text-amber-800">Guest</span>
+                            @endif
+                        </td>
                         <td>{{ $apt->doctor->name ?? '—' }}</td>
                         <td>{{ $apt->department->name ?? '—' }}</td>
                         <td>{{ $apt->appointment_date->format('M d, Y') }}</td>

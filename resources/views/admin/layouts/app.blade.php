@@ -133,6 +133,7 @@
                 </style>
                 <a href="{{ route('admin.dashboard') }}" class="admin-tab {{ $isActiveTab('admin.dashboard') ? 'active' : '' }}">Dashboard</a>
                 <a href="{{ route('admin.patients.index') }}" class="admin-tab {{ $isActiveTab('admin.patients.*') ? 'active' : '' }}">Patients</a>
+                <a href="{{ route('admin.accounts.index') }}" class="admin-tab {{ $isActiveTab('admin.accounts.*') ? 'active' : '' }}">Accounts</a>
                 <a href="{{ route('admin.doctors.index') }}" class="admin-tab {{ $isActiveTab('admin.doctors.*') ? 'active' : '' }}">Doctors</a>
                 <a href="{{ route('admin.appointments.index') }}" class="admin-tab {{ $isActiveTab('admin.appointments.*') ? 'active' : '' }}">Appointments</a>
                 <a href="{{ route('admin.admissions.index') }}" class="admin-tab {{ $isActiveTab('admin.admissions.*') ? 'active' : '' }}">OPD / IPD</a>
@@ -157,6 +158,7 @@
                 <div id="mobile-tab-menu" class="hidden mt-2 bg-linear-to-b from-white to-slate-50 rounded-xl border border-slate-200 shadow-lg p-2 space-y-1">
                     <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 {{ $isActiveTab('admin.dashboard') ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">Dashboard</a>
                     <a href="{{ route('admin.patients.index') }}" class="block px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 {{ $isActiveTab('admin.patients.*') ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">Patients</a>
+                    <a href="{{ route('admin.accounts.index') }}" class="block px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 {{ $isActiveTab('admin.accounts.*') ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">Accounts</a>
                     <a href="{{ route('admin.doctors.index') }}" class="block px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 {{ $isActiveTab('admin.doctors.*') ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">Doctors</a>
                     <a href="{{ route('admin.appointments.index') }}" class="block px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 {{ $isActiveTab('admin.appointments.*') ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">Appointments</a>
                     <a href="{{ route('admin.admissions.index') }}" class="block px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 {{ $isActiveTab('admin.admissions.*') ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">OPD / IPD</a>

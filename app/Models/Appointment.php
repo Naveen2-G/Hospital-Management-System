@@ -13,7 +13,16 @@ class Appointment extends Model
     protected $fillable = [
         'patient_id', 'doctor_id', 'department_id',
         'appointment_date', 'time_slot', 'status', 'type', 'notes',
+        'guest_name', 'guest_phone',
     ];
+
+    public function getPatientNameAttribute()
+    {
+        if ($this->patient) {
+            return $this->patient->name ?? $this->patient->user?->name ?? 'Unknown Patient';
+        }
+        return $this->guest_name ? $this->guest_name . ' (Guest User)' : 'Unknown Patient';
+    }
 
     protected function casts(): array
     {

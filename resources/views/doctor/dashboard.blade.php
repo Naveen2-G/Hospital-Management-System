@@ -371,8 +371,13 @@
                                     data-search="{{ strtolower(trim(($appointment->patient->name ?? '') . ' ' . ($appointment->department->name ?? 'General') . ' ' . $appointment->time_slot . ' ' . $appointment->type . ' ' . ($appointment->patient->phone ?? ''))) }}">
                                     <td class="px-4 py-4 font-semibold text-slate-900">{{ $appointment->time_slot }}</td>
                                     <td class="px-4 py-4">
-                                        <p class="font-semibold text-slate-900">{{ $appointment->patient->name ?? 'Unknown patient' }}</p>
-                                        <p class="text-xs text-slate-500">{{ $appointment->patient->phone ?? 'No contact' }}</p>
+                                        <p class="font-semibold text-slate-900">
+                                            {{ $appointment->patient_name }}
+                                            @if(!$appointment->patient_id)
+                                                <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-medium bg-amber-100 text-amber-800">Guest</span>
+                                            @endif
+                                        </p>
+                                        <p class="text-xs text-slate-500">{{ $appointment->patient->phone ?? ($appointment->guest_phone ?? 'No contact') }}</p>
                                     </td>
                                     <td class="px-4 py-4">{{ $appointment->department->name ?? 'General' }}</td>
                                     <td class="px-4 py-4 capitalize">{{ $appointment->type }}</td>
@@ -487,7 +492,12 @@
                             <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
                                 <div class="flex items-center justify-between gap-3">
                                     <div>
-                                        <p class="font-semibold text-slate-900">{{ $appointment->patient->name ?? 'Unknown patient' }}</p>
+                                        <p class="font-semibold text-slate-900">
+                                            {{ $appointment->patient_name }}
+                                            @if(!$appointment->patient_id)
+                                                <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-medium bg-amber-100 text-amber-800">Guest</span>
+                                            @endif
+                                        </p>
                                         <p class="text-sm text-slate-500">{{ $appointment->appointment_date->format('M d, Y') }} · {{ $appointment->time_slot }}</p>
                                     </div>
                                     <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">{{ $statusLabels[$appointment->status] ?? ucfirst($appointment->status) }}</span>
@@ -516,7 +526,12 @@
                             <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
                                 <div class="flex items-center justify-between gap-3">
                                     <div>
-                                        <p class="font-semibold text-slate-900">{{ $consultation->patient->name ?? 'Unknown patient' }}</p>
+                                        <p class="font-semibold text-slate-900">
+                                            {{ $consultation->patient_name }}
+                                            @if(!$consultation->patient_id)
+                                                <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-medium bg-amber-100 text-amber-800">Guest</span>
+                                            @endif
+                                        </p>
                                         <p class="text-sm text-slate-500">{{ $consultation->appointment_date->format('M d, Y') }} · {{ $consultation->time_slot }}</p>
                                     </div>
                                     <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Completed</span>

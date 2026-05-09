@@ -34,7 +34,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('invoice_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 12, 2);
-            $table->enum('method', ['cash', 'card', 'online', 'insurance'])->default('cash');
+            $table->enum('method', ['cash', 'card', 'online', 'insurance', 'stripe'])->default('cash');
             $table->string('transaction_id')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();

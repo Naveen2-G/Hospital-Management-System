@@ -19,8 +19,13 @@ class CheckoutController extends Controller
             'package_price' => 'required|numeric'
         ]);
 
-        // Set Stripe secret key from environment
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        $stripeSecret = config('services.stripe.secret');
+        if (! $stripeSecret) {
+            return back()->with('error', 'Stripe is not configured correctly. Please contact support.');
+        }
+
+        // Set Stripe secret key from configuration
+        Stripe::setApiKey($stripeSecret);
 
         // Stripe requires the amount in cents (or smallest currency unit).
         // Since price is in INR, multiply by 100

@@ -1,0 +1,391 @@
+/* Doctor portal polish (dashboard + shared UI) */
+:root {
+  --dd-ease-out: cubic-bezier(0.18, 0.9, 0.22, 1);
+  --dd-ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Entrance reveal (enabled after JS adds .dd-ready) */
+.dd-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  filter: blur(0.2px);
+}
+
+.dd-ready .dd-reveal {
+  animation: dd-in 700ms var(--dd-ease-out) both;
+}
+
+.dd-ready .dd-delay-1 { animation-delay: 80ms; }
+.dd-ready .dd-delay-2 { animation-delay: 160ms; }
+.dd-ready .dd-delay-3 { animation-delay: 240ms; }
+.dd-ready .dd-delay-4 { animation-delay: 320ms; }
+.dd-ready .dd-delay-5 { animation-delay: 400ms; }
+
+@keyframes dd-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Premium card interactions */
+.dd-card {
+  transform: translateZ(0);
+  transition:
+    transform 220ms var(--dd-ease-out),
+    box-shadow 220ms var(--dd-ease-out),
+    border-color 220ms var(--dd-ease-out),
+    background-color 220ms var(--dd-ease-out);
+}
+
+.dd-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 65px rgba(15, 23, 42, 0.12);
+  border-color: rgba(14, 165, 233, 0.25);
+}
+
+.dd-card:active {
+  transform: translateY(-2px);
+}
+
+/* Gradient border glow for hero and featured panels */
+.dd-gradient-border {
+  position: relative;
+}
+
+.dd-gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.55), rgba(59, 130, 246, 0.40), rgba(16, 185, 129, 0.30));
+  filter: blur(10px);
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 220ms var(--dd-ease-out);
+}
+
+.dd-gradient-border:hover::before {
+  opacity: 0.85;
+}
+
+/* Quick action buttons */
+.dd-quick-btn {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  transition: transform 180ms var(--dd-ease-out), box-shadow 180ms var(--dd-ease-out);
+}
+
+.dd-quick-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.55), transparent 45%);
+  opacity: 0;
+  transition: opacity 220ms var(--dd-ease-out);
+  pointer-events: none;
+}
+
+.dd-quick-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(14, 165, 233, 0.18);
+}
+
+.dd-quick-btn:hover::after {
+  opacity: 1;
+}
+
+/* Logo strip */
+.dd-logo {
+  transition: transform 180ms var(--dd-ease-out), opacity 180ms var(--dd-ease-out);
+  opacity: 0.86;
+}
+
+.dd-logo:hover {
+  opacity: 1;
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* Subtle animated highlight (used on “featured” chips) */
+.dd-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.dd-sheen::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -40%;
+  width: 40%;
+  height: 220%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  transform: rotate(18deg);
+  opacity: 0;
+  transition: opacity 260ms var(--dd-ease-out);
+}
+
+.dd-sheen:hover::after {
+  opacity: 1;
+  animation: dd-sweep 900ms var(--dd-ease-soft) both;
+}
+
+@keyframes dd-sweep {
+  from { transform: translateX(0) rotate(18deg); }
+  to { transform: translateX(260%) rotate(18deg); }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dd-reveal,
+  .dd-ready .dd-reveal,
+  .dd-card,
+  .dd-quick-btn,
+  .dd-logo,
+  .dd-sheen::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Patient detail drawer (premium styling)
+   ─────────────────────────────────────────────────────────────── */
+
+.dd-drawer-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+html.dd-drawer-open .dd-drawer-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.dd-drawer {
+  transform: translate3d(-50%, -50%, 0) scale(0.985);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 240ms var(--dd-ease-out),
+    transform 320ms var(--dd-ease-out),
+    box-shadow 320ms var(--dd-ease-out);
+}
+
+html.dd-drawer-open .dd-drawer {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(-50%, -50%, 0) scale(1);
+  box-shadow: 0 40px 120px rgba(2, 6, 23, 0.28);
+}
+
+.dd-drawer-name {
+  background: linear-gradient(90deg, #0f172a, #0b4a6e, #1d4ed8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dd-drawer-tile {
+  position: relative;
+  overflow: hidden;
+}
+
+.dd-drawer-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 0%, rgba(56, 189, 248, 0.10), transparent 42%);
+  opacity: 0;
+  transition: opacity 220ms var(--dd-ease-out);
+  pointer-events: none;
+}
+
+.dd-drawer-tile:hover::after {
+  opacity: 1;
+}
+
+.dd-drawer-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(248, 250, 252, 0.92));
+  box-shadow: 0 10px 20px rgba(2, 6, 23, 0.06);
+}
+
+.dd-drawer-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.dd-drawer-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(56, 189, 248, 0.16), transparent 46%),
+    radial-gradient(circle at 90% 40%, rgba(59, 130, 246, 0.10), transparent 48%);
+  pointer-events: none;
+}
+
+.dd-drawer-close {
+  position: relative;
+  transform: translateZ(0);
+}
+
+.dd-drawer-close:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.28), 0 10px 24px rgba(2, 6, 23, 0.18);
+}
+
+/* Drawer scroll area: hide scrollbar but keep scrolling */
+.patient-drawer-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.patient-drawer-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Simple icon rows (patient details) */
+.dd-field-grid {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(248,250,252,0.82));
+  box-shadow: 0 18px 55px rgba(2, 6, 23, 0.08);
+  padding: 14px;
+}
+
+.dd-field {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  grid-template-areas:
+    "icon label"
+    "icon value";
+  align-items: start;
+  gap: 2px 12px;
+  padding: 10px 10px;
+  border-radius: 1rem;
+  transition: background-color 200ms var(--dd-ease-out), transform 200ms var(--dd-ease-out);
+}
+
+.dd-field:hover {
+  background-color: rgba(14, 165, 233, 0.06);
+  transform: translateY(-1px);
+}
+
+.dd-field-icon {
+  grid-area: icon;
+  height: 34px;
+  width: 34px;
+  border-radius: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(148, 163, 184, 0.30);
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.06);
+  transform: translateZ(0);
+}
+
+.dd-field-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Animate icons on open (subtle) */
+html.dd-drawer-open .dd-field-icon {
+  animation: dd-icon-pop 520ms var(--dd-ease-out) both;
+}
+
+@keyframes dd-icon-pop {
+  from { transform: translateY(6px) scale(0.96); opacity: 0.3; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.dd-field:hover .dd-field-icon {
+  animation: dd-icon-wiggle 700ms var(--dd-ease-soft);
+}
+
+@keyframes dd-icon-wiggle {
+  0% { transform: translateY(0) rotate(0deg); }
+  35% { transform: translateY(-1px) rotate(-2deg); }
+  70% { transform: translateY(0) rotate(2deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+.dd-field-label {
+  grid-area: label;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(100, 116, 139, 1);
+}
+
+.dd-field-value {
+  grid-area: value;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 1);
+  line-height: 1.3;
+}
+
+/* Icon tones */
+.dd-i-sky { color: #0369a1; }
+.dd-i-cyan { color: #0e7490; }
+.dd-i-emerald { color: #047857; }
+.dd-i-rose { color: #be123c; }
+.dd-i-violet { color: #6d28d9; }
+.dd-i-amber { color: #b45309; }
+.dd-i-slate { color: #334155; }
+
+/* History cards with a left accent line */
+#patient-drawer-history .history-entry {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(148, 163, 184, 0.55); /* slate-400-ish */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.94));
+}
+
+#patient-drawer-history .history-entry::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.9), rgba(59, 130, 246, 0.6));
+  opacity: 0.9;
+}
+
+/* Timeline entry animation (used by doctor.js) */
+.history-entry {
+  transform: translateY(8px) scale(0.992);
+  opacity: 0;
+  transition: transform 360ms var(--dd-ease-out), opacity 360ms ease;
+}
+
+.history-entry.visible {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Make the stat tiles feel more “touchable” inside the drawer */
+.dd-drawer .patient-drawer-scroll .group {
+  transition: transform 200ms var(--dd-ease-out), box-shadow 220ms var(--dd-ease-out), border-color 220ms var(--dd-ease-out);
+}
+
+.dd-drawer .patient-drawer-scroll .group:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+}
+

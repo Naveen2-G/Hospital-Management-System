@@ -30,8 +30,10 @@ Route::get('/health-packages', function () {
 // ─── Unified Auth Routes ─────────────────────────────────────
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LabReportController;
+use App\Http\Controllers\RegisterController;
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 Route::middleware('auth')->get('/lab-orders/{labOrder}/report', [LabReportController::class, 'show'])->name('lab-orders.report');
 
 // ─── Checkout Routes ──────────────────────────────────────────
@@ -39,6 +41,10 @@ use App\Http\Controllers\CheckoutController;
 Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+
+// ─── Special Booking (Guest) Route ────────────────────────────
+use App\Http\Controllers\SpecialBookingController;
+Route::post('/special-booking', [SpecialBookingController::class, 'store'])->name('special-booking.store');
 
 // ─── Service Pages ────────────────────────────────────────────
 
@@ -187,8 +193,7 @@ Route::post('/admin/logout', [LoginController::class, 'logout'])->name('admin.lo
 Route::prefix('doctor')->middleware(['auth'])->name('doctor.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('dashboard.index');
-    Route::get('/profile', [\App\Http\Controllers\Doctor\DashboardController::class, 'profile'])->name('profile');
-    Route::put('/profile', [\App\Http\Controllers\Doctor\DashboardController::class, 'updateProfile'])->name('profile.update');
+    // Doctor dashboard sections (single controller, different route names)
     Route::get('/appointments', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('appointments');
     Route::get('/patients', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('patients');
     Route::get('/consultations', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('consultations');
@@ -197,6 +202,7 @@ Route::prefix('doctor')->middleware(['auth'])->name('doctor.')->group(function (
     Route::get('/schedule', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('schedule');
     Route::get('/notifications', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('notifications');
     Route::get('/reports', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('reports');
+    Route::get('/profile', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('profile');
     Route::post('/change-password', [\App\Http\Controllers\Doctor\ChangePasswordController::class, 'update'])->name('change-password.update');
 
     Route::post('/appointments/{appointment}/status', [\App\Http\Controllers\Doctor\ActionController::class, 'updateAppointmentStatus'])->name('appointments.status');
@@ -216,6 +222,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     
     // Change Password
     Route::post('/change-password', [\App\Http\Controllers\Admin\ChangePasswordController::class, 'update'])->name('change-password.update');
+
+    // Accounts (registered patients)
+    Route::get('/accounts', [\App\Http\Controllers\Admin\AccountController::class, 'index'])->name('accounts.index');
 
     // Patients
     Route::resource('patients', \App\Http\Controllers\Admin\PatientController::class);
@@ -258,5 +267,21 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 
     // Audit Logs
     Route::get('/audit-logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-logs.index');
+});
+
+// Patient Protected Routes
+Route::prefix('patient')->middleware(['auth', 'patient'])->name('patient.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Patient\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Patient\DashboardController::class, 'index'])->name('dashboard.index');
+    Route::post('/appointments', [\App\Http\Controllers\Patient\AppointmentController::class, 'store'])->name('appointments.store');
+
+    // Change password
+    Route::get('/change-password', [\App\Http\Controllers\Patient\ChangePasswordController::class, 'edit'])->name('change-password.edit');
+    Route::post('/change-password', [\App\Http\Controllers\Patient\ChangePasswordController::class, 'update'])->name('change-password.update');
+
+    // Invoice payments (Stripe)
+    Route::get('/invoices/{invoice}/pay', [\App\Http\Controllers\Patient\InvoicePaymentController::class, 'create'])->name('invoices.payment.create');
+    Route::get('/invoices/{invoice}/pay/success', [\App\Http\Controllers\Patient\InvoicePaymentController::class, 'success'])->name('invoices.payment.success');
+    Route::get('/invoices/{invoice}/pay/cancel', [\App\Http\Controllers\Patient\InvoicePaymentController::class, 'cancel'])->name('invoices.payment.cancel');
 });
 
