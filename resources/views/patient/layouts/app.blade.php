@@ -24,9 +24,62 @@
             </a>
 
             <div class="flex items-center gap-2">
+                {{-- Notification Bell --}}
+                @php
+                    $notifItems = collect();
+                    if(isset($appointments)) foreach($appointments->take(3) as $apt) {
+                        $notifItems->push(['color'=>'blue','msg'=>'Appointment with Dr. '.($apt->doctor?->name ?? 'doctor').' on '.optional($apt->appointment_date)->format('d M'),'time'=>optional($apt->created_at)->diffForHumans()]);
+                    }
+                    if(isset($labOrders)) foreach($labOrders->whereNotNull('report_file')->take(2) as $lo) {
+                        $notifItems->push(['color'=>'green','msg'=>'Lab report ready: '.($lo->labTest?->name ?? 'Lab test'),'time'=>optional($lo->ordered_at)->diffForHumans()]);
+                    }
+                    if(isset($invoices)) foreach($invoices->where('status','paid')->take(1) as $inv) {
+                        $notifItems->push(['color'=>'amber','msg'=>'Payment confirmed for invoice '.($inv->invoice_number ?? '#'.$inv->id),'time'=>optional($inv->updated_at)->diffForHumans()]);
+                    }
+                    if(isset($prescriptions)) foreach($prescriptions->take(1) as $rx) {
+                        $notifItems->push(['color'=>'violet','msg'=>'Prescription issued by Dr. '.($rx->doctor?->name ?? 'doctor'),'time'=>optional($rx->created_at)->diffForHumans()]);
+                    }
+                @endphp
+                <div class="notif-bell-wrap" id="notif-bell-wrap">
+                    <button class="notif-bell-btn" id="notif-bell-btn" aria-label="Notifications">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                        @if($notifItems->count() > 0)
+                            <span class="notif-badge">{{ $notifItems->count() }}</span>
+                        @endif
+                    </button>
+                    <div class="notif-dropdown" id="notif-dropdown">
+                        <div class="notif-dropdown-header">
+                            <h3>Notifications</h3>
+                            <span class="notif-mark-read" id="notif-mark-read">Mark all read</span>
+                        </div>
+                        <div class="notif-list">
+                            @if($notifItems->isEmpty())
+                                <div style="padding:1.5rem;text-align:center;color:#94a3b8;font-size:0.82rem;font-weight:600">No notifications yet.</div>
+                            @else
+                                @foreach($notifItems as $n)
+                                <div class="notif-item unread">
+                                    <div class="notif-icon {{ $n['color'] }}">
+                                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </div>
+                                    <div class="notif-text">
+                                        <p>{{ $n['msg'] }}</p>
+                                        <span>{{ $n['time'] }}</span>
+                                    </div>
+                                    <div class="notif-dot"></div>
+                                </div>
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ route('patient.dashboard') }}?tab=profile" class="patient-pill">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                    Profile
+                </a>
                 <a href="{{ route('patient.change-password.edit') }}" class="patient-pill">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
-                   Change Password
+                    Password
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -65,5 +118,33 @@
             © {{ date('Y') }} — Patient Portal · All rights reserved
         </div>
     </footer>
+    {{-- Emergency SOS Floating Button --}}
+    @php $sosNumber = isset($patient) ? ($patient->emergency_contact ?? '') : ''; @endphp
+    <a href="tel:{{ $sosNumber ?: '108' }}" class="sos-btn" id="sos-btn" title="Emergency SOS" aria-label="Emergency SOS call">
+        <span class="sos-tooltip">{{ $sosNumber ? 'Call '.$sosNumber : 'Emergency: 108' }}</span>
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+    </a>
+
+    <script>
+        // Notification bell toggle
+        const bellBtn = document.getElementById('notif-bell-btn');
+        const bellDrop = document.getElementById('notif-dropdown');
+        if (bellBtn && bellDrop) {
+            bellBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                bellDrop.classList.toggle('open');
+            });
+            document.addEventListener('click', () => bellDrop.classList.remove('open'));
+            bellDrop.addEventListener('click', e => e.stopPropagation());
+        }
+        const markRead = document.getElementById('notif-mark-read');
+        if (markRead) {
+            markRead.addEventListener('click', () => {
+                document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
+                const badge = document.querySelector('.notif-badge');
+                if (badge) badge.remove();
+            });
+        }
+    </script>
 </body>
 </html>

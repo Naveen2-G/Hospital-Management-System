@@ -283,5 +283,8 @@ Route::prefix('patient')->middleware(['auth', 'patient'])->name('patient.')->gro
     Route::get('/invoices/{invoice}/pay', [\App\Http\Controllers\Patient\InvoicePaymentController::class, 'create'])->name('invoices.payment.create');
     Route::get('/invoices/{invoice}/pay/success', [\App\Http\Controllers\Patient\InvoicePaymentController::class, 'success'])->name('invoices.payment.success');
     Route::get('/invoices/{invoice}/pay/cancel', [\App\Http\Controllers\Patient\InvoicePaymentController::class, 'cancel'])->name('invoices.payment.cancel');
+
+    // Profile
+    Route::put('/profile', [\App\Http\Controllers\Patient\ProfileController::class, 'update'])->name('profile.update');
 });
 
