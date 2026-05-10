@@ -558,10 +558,9 @@
                     <div class="profile-field">
                         <label>Blood Group</label>
                         <select class="profile-input" name="blood_group">
-                            @php $bg = old('blood_group', $patient->blood_group); @endphp
                             <option value="">Select</option>
                             @foreach(['A+','A-','B+','B-','AB+','AB-','O+','O-'] as $bg_opt)
-                                <option value="{{ $bg_opt }}" {{ $bg===$bg_opt?'selected':'' }}>{{ $bg_opt }}</option>
+                                <option value="{{ $bg_opt }}" {{ old('blood_group', $patient->blood_group ?? '') === $bg_opt ? 'selected' : '' }}>{{ $bg_opt }}</option>
                             @endforeach
                         </select>
                     </div>
