@@ -16,7 +16,22 @@
                 View your appointments, lab reports, prescriptions, and invoices — updated from the admin and doctor dashboards.
             </p>
         </div>
-        <img src="{{ asset('images/patient-blob.svg') }}" class="patient-hero-blob" alt="" />
+        <div class="absolute right-6 top-1/2 hidden -translate-y-1/2 items-center gap-4 md:flex">
+            <div class="flex h-45 w-45 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 shadow-2xl shadow-emerald-950/35">
+                @if(!empty($patient->avatar))
+                    <img
+                        src="{{ asset('storage/'.$patient->avatar) }}"
+                        alt="Patient photo"
+                        class="h-full w-full object-cover"
+                        loading="lazy"
+                    >
+                @else
+                    <div class="text-3xl font-extrabold tracking-tight text-white/90">
+                        {{ strtoupper(substr($patient->name ?? $user->name ?? 'P', 0, 1)) }}
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 
     <!-- Stat Cards -->
