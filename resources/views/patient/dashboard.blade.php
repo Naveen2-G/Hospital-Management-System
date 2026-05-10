@@ -15,12 +15,31 @@
             <p class="mt-2 max-w-2xl text-sm text-emerald-100">
                 View your appointments, lab reports, prescriptions, and invoices — updated from the admin and doctor dashboards.
             </p>
+
+            {{-- Mobile / small screens avatar --}}
+            <div class="mt-5 flex items-center gap-3 md:hidden">
+                <div class="flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-lg shadow-emerald-950/25">
+                    @if(!empty($patient->avatar))
+                        <img
+                            src="{{ Storage::url($patient->avatar) }}"
+                            alt="Patient photo"
+                            class="h-full w-full object-cover"
+                            loading="lazy"
+                        >
+                    @else
+                        <div class="text-xl font-extrabold tracking-tight text-white/90">
+                            {{ strtoupper(substr($patient->name ?? $user->name ?? 'P', 0, 1)) }}
+                        </div>
+                    @endif
+                </div>
+                <div class="text-sm font-semibold text-emerald-100/90">Patient profile</div>
+            </div>
         </div>
         <div class="absolute right-6 top-1/2 hidden -translate-y-1/2 items-center gap-4 md:flex">
-            <div class="flex h-45 w-45 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 shadow-2xl shadow-emerald-950/35">
+            <div class="flex h-50 w-50 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 shadow-2xl shadow-emerald-950/35">
                 @if(!empty($patient->avatar))
                     <img
-                        src="{{ asset('storage/'.$patient->avatar) }}"
+                        src="{{ Storage::url($patient->avatar) }}"
                         alt="Patient photo"
                         class="h-full w-full object-cover"
                         loading="lazy"

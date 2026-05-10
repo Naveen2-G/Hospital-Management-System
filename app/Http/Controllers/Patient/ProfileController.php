@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Patient;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
@@ -25,7 +26,7 @@ class ProfileController extends Controller
             'emergency_contact_name' => ['nullable', 'string', 'max:255'],
             'allergies'              => ['nullable', 'string', 'max:1000'],
             'chronic_diseases'       => ['nullable', 'string', 'max:1000'],
-            'avatar'                 => ['nullable', 'image', 'max:2048'],
+            'avatar'                 => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         $patient = $user->patient;
@@ -37,28 +38,34 @@ class ProfileController extends Controller
             ]);
         }
 
-        // Handle avatar upload
-        if ($request->hasFile('avatar')) {
-            if ($patient->avatar && Storage::disk('public')->exists($patient->avatar)) {
-                Storage::disk('public')->delete($patient->avatar);
+        DB::transaction(function () use ($request, $data, $patient, $user) {
+            $oldAvatar = $patient->avatar;
+
+            // Handle avatar upload (store relative path only)
+            if ($request->hasFile('avatar')) {
+                $patient->avatar = $request->file('avatar')->store('avatars', 'public'); // storage/app/public/avatars/...
             }
-            $patient->avatar = $request->file('avatar')->store('patient-avatars', 'public');
-        }
 
-        $patient->name                   = $data['name'];
-        $patient->phone                  = $data['phone'] ?? $patient->phone;
-        $patient->dob                    = $data['dob'] ?? $patient->dob;
-        $patient->gender                 = $data['gender'] ?? $patient->gender;
-        $patient->blood_group            = $data['blood_group'] ?? $patient->blood_group;
-        $patient->address                = $data['address'] ?? null;
-        $patient->emergency_contact      = $data['emergency_contact'] ?? null;
-        $patient->emergency_contact_name = $data['emergency_contact_name'] ?? null;
-        $patient->allergies              = $data['allergies'] ?? null;
-        $patient->chronic_diseases       = $data['chronic_diseases'] ?? null;
-        $patient->save();
+            $patient->name                   = $data['name'];
+            $patient->phone                  = $data['phone'] ?? $patient->phone;
+            $patient->dob                    = $data['dob'] ?? $patient->dob;
+            $patient->gender                 = $data['gender'] ?? $patient->gender;
+            $patient->blood_group            = $data['blood_group'] ?? $patient->blood_group;
+            $patient->address                = $data['address'] ?? null;
+            $patient->emergency_contact      = $data['emergency_contact'] ?? null;
+            $patient->emergency_contact_name = $data['emergency_contact_name'] ?? null;
+            $patient->allergies              = $data['allergies'] ?? null;
+            $patient->chronic_diseases       = $data['chronic_diseases'] ?? null;
+            $patient->save();
 
-        $user->name = $data['name'];
-        $user->save();
+            $user->name = $data['name'];
+            $user->save();
+
+            // Delete old avatar only after successful save, and only if it changed
+            if ($request->hasFile('avatar') && $oldAvatar && $oldAvatar !== $patient->avatar) {
+                Storage::disk('public')->delete($oldAvatar);
+            }
+        });
 
         return redirect()->route('patient.profile')
             ->with('success', 'Profile updated successfully.');

@@ -18,7 +18,7 @@
             @csrf @method('PUT')
             <div class="profile-avatar-wrap">
                 @if(isset($patient->avatar) && $patient->avatar)
-                    <img src="{{ asset('storage/'.$patient->avatar) }}" alt="Avatar" class="profile-avatar">
+                    <img src="{{ Storage::url($patient->avatar) }}" alt="Avatar" class="profile-avatar">
                 @else
                     <div class="profile-avatar-placeholder">{{ strtoupper(substr($patient->name ?? 'P', 0, 1)) }}</div>
                 @endif
