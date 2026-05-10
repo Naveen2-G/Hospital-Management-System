@@ -271,8 +271,16 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 
 // Patient Protected Routes
 Route::prefix('patient')->middleware(['auth', 'patient'])->name('patient.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Patient\DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard', [\App\Http\Controllers\Patient\DashboardController::class, 'index'])->name('dashboard.index');
+    Route::redirect('/', '/patient/dashboard')->name('home');
+
+    Route::get('/dashboard', [\App\Http\Controllers\Patient\PortalController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/appointments', [\App\Http\Controllers\Patient\PortalController::class, 'appointments'])->name('appointments');
+    Route::get('/reports', [\App\Http\Controllers\Patient\PortalController::class, 'reports'])->name('reports');
+    Route::get('/prescriptions', [\App\Http\Controllers\Patient\PortalController::class, 'prescriptions'])->name('prescriptions');
+    Route::get('/invoices', [\App\Http\Controllers\Patient\PortalController::class, 'invoices'])->name('invoices');
+    Route::get('/profile', [\App\Http\Controllers\Patient\PortalController::class, 'profile'])->name('profile');
+
     Route::post('/appointments', [\App\Http\Controllers\Patient\AppointmentController::class, 'store'])->name('appointments.store');
 
     // Change password

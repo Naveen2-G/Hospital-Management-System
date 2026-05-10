@@ -12,7 +12,7 @@
 </head>
 <body class="patient-shell font-sans antialiased">
     <header class="patient-header">
-        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        <div class="flex w-full items-center justify-between gap-4 px-6 py-3">
             <a href="{{ route('patient.dashboard') }}" class="flex items-center gap-3 group">
                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 shadow-lg shadow-emerald-600/20 transition group-hover:shadow-emerald-600/30 group-hover:scale-105">
                     <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg>
@@ -22,6 +22,8 @@
                     <div class="text-xs font-semibold text-emerald-600">Patient Portal</div>
                 </div>
             </a>
+
+            @include('patient.partials.topnav')
 
             <div class="flex items-center gap-2">
                 {{-- Notification Bell --}}
@@ -73,7 +75,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('patient.dashboard') }}?tab=profile" class="patient-pill">
+                <a href="{{ route('patient.profile') }}" class="patient-pill">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
                     Profile
                 </a>
@@ -92,7 +94,7 @@
         </div>
     </header>
 
-    <main class="relative z-[1] mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+    <main class="relative z-[1] w-full px-6 pb-16 pt-6">
         @if(session('success'))
             <div class="patient-alert patient-alert-success">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -110,7 +112,7 @@
     </main>
 
     <footer class="patient-footer">
-        <div class="mx-auto max-w-6xl px-4 py-8 text-center text-xs font-medium text-slate-400 sm:px-6 lg:px-8">
+        <div class="w-full px-6 py-8 text-center text-xs font-medium text-slate-400">
             <div class="flex items-center justify-center gap-1.5 mb-1">
                 <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
                 <span>HMS Hospital Management System</span>

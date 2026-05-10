@@ -39,6 +39,54 @@
     z-index: 1;
 }
 
+/* ─── Top Navbar ───────────────────────────────────────────── */
+.patient-topnav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+}
+.patient-topnav-scroll {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem;
+    border-radius: 9999px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid rgba(148,163,184,0.2);
+    backdrop-filter: blur(10px);
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+}
+.patient-topnav-scroll::-webkit-scrollbar { display: none; }
+.patient-topnav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: 9999px;
+    padding: 0.55rem 0.95rem;
+    font-weight: 800;
+    font-size: 0.82rem;
+    color: #475569;
+    text-decoration: none;
+    transition: all 180ms ease;
+}
+.patient-topnav-link:hover {
+    background: rgba(248,250,252,0.95);
+    color: #0f172a;
+}
+.patient-topnav-link.is-active {
+    background: linear-gradient(135deg, #064e3b, #047857);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(6,78,59,0.22);
+}
+@media (max-width: 900px) {
+    .patient-topnav { justify-content: flex-start; }
+    .patient-topnav-scroll { border-radius: 14px; }
+}
+
 /* ─── Hero Welcome Banner ──────────────────────────────────── */
 .patient-hero {
     position: relative;

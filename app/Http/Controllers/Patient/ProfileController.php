@@ -60,7 +60,7 @@ class ProfileController extends Controller
         $user->name = $data['name'];
         $user->save();
 
-        return redirect()->route('patient.dashboard', ['tab' => 'profile'])
+        return redirect()->route('patient.profile')
             ->with('success', 'Profile updated successfully.');
     }
 }

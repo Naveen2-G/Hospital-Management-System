@@ -1,18 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // (Legacy) Tabs support if present
     const tabsRoot = document.querySelector('[data-tabs]');
-    if (!tabsRoot) return;
+    if (tabsRoot) {
+        const tabs = Array.from(tabsRoot.querySelectorAll('[data-tab]'));
+        const panels = Array.from(document.querySelectorAll('[data-tab-panel]'));
 
-    const tabs = Array.from(tabsRoot.querySelectorAll('[data-tab]'));
-    const panels = Array.from(document.querySelectorAll('[data-tab-panel]'));
+        function activate(tabName) {
+            tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabName));
+            panels.forEach(p => p.classList.toggle('hidden', p.getAttribute('data-tab-panel') !== tabName));
+        }
 
-    function activate(tabName) {
-        tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabName));
-        panels.forEach(p => p.classList.toggle('hidden', p.getAttribute('data-tab-panel') !== tabName));
+        tabs.forEach(t => {
+            t.addEventListener('click', () => activate(t.getAttribute('data-tab')));
+        });
     }
-
-    tabs.forEach(t => {
-        t.addEventListener('click', () => activate(t.getAttribute('data-tab')));
-    });
 
     // Appointment booking: filter doctors by department
     const bookingForm = document.querySelector('form[data-appointment-booking]');

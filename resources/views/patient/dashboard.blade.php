@@ -94,7 +94,10 @@
                     </div>
                     @endif
                 @else
-                    <div class="apt-widget-none">No upcoming appointments.<br><small>Book one using the Appointments tab below.</small></div>
+                    <div class="apt-widget-none">
+                        No upcoming appointments.<br>
+                        <small>Book one from <a href="{{ route('patient.appointments') }}" class="underline decoration-white/50 underline-offset-4">Appointments</a>.</small>
+                    </div>
                 @endif
             </div>
 
@@ -194,418 +197,63 @@
         </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="mt-8">
-        <div class="patient-tabs" data-tabs>
-            <button class="patient-tab active" data-tab="appointments">Appointments</button>
-            <button class="patient-tab" data-tab="reports">Reports</button>
-            <button class="patient-tab" data-tab="prescriptions">Prescriptions</button>
-            <button class="patient-tab" data-tab="invoices">Invoices</button>
-            <button class="patient-tab" data-tab="profile">My Profile</button>
-        </div>
-
-        <!-- Appointments Panel -->
-        <section class="mt-5 patient-card" data-tab-panel="appointments">
-            <div class="patient-card-header">
-                <h2 class="patient-card-title flex items-center gap-2">
-                    <div class="card-title-icon bg-emerald-600">
+    <!-- Quick Access -->
+    <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <a href="{{ route('patient.appointments') }}" class="patient-card hover:shadow-lg transition">
+            <div class="patient-card-header" style="border-bottom:0;margin-bottom:0;padding-bottom:0;">
+                <h2 class="patient-card-title">
+                    <span class="card-title-icon bg-emerald-600">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    </div>
+                    </span>
                     Appointments
                 </h2>
-                <p class="patient-card-subtitle">Your recent and upcoming visits.</p>
+                <p class="patient-card-subtitle">Book and view your visits.</p>
             </div>
-            <!-- Booking Form -->
-            <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                <div class="flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                        <div class="text-sm font-extrabold text-slate-900">Book a doctor appointment</div>
-                        <div class="mt-1 text-sm text-slate-600">This booking will appear in the respective doctor and admin dashboards.</div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <a href="{{ url('/appointments') }}" class="patient-pill">Need help choosing?</a>
-                        <button type="button" class="patient-pill patient-pill-dark" data-apt-open>Book appointment</button>
-                    </div>
-                </div>
-                <div class="mt-4 hidden" data-apt-panel>
-                    <div class="mb-3 flex items-center justify-between gap-3">
-                        <div class="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">Appointment form</div>
-                        <button type="button" class="patient-pill" data-apt-close>Close</button>
-                    </div>
-                    <form class="grid grid-cols-1 gap-3 md:grid-cols-2" method="POST" action="{{ route('patient.appointments.store') }}" data-appointment-booking>
-                        @csrf
-                        <div>
-                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Full name</label>
-                            <input name="name" value="{{ old('name', $patient->name ?? $user->name) }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" required>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="mb-1.5 block text-sm font-semibold text-slate-700">Age</label>
-                                <input type="number" min="1" max="120" name="age" value="{{ old('age') }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" required>
-                            </div>
-                            <div>
-                                <label class="mb-1.5 block text-sm font-semibold text-slate-700">Gender</label>
-                                <select name="gender" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" required>
-                                    @php($genderOld = old('gender', $patient->gender ?? 'male'))
-                                    <option value="male" {{ $genderOld === 'male' ? 'selected' : '' }}>Male</option>
-                                    <option value="female" {{ $genderOld === 'female' ? 'selected' : '' }}>Female</option>
-                                    <option value="other" {{ $genderOld === 'other' ? 'selected' : '' }}>Other</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Email</label>
-                            <input type="email" name="email" value="{{ old('email', $patient->email ?? $user->email) }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" required>
-                        </div>
-                        <div>
-                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Phone</label>
-                            <input name="phone" value="{{ old('phone', $patient->phone ?? $user->phone) }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" required>
-                        </div>
-                        <div>
-                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Department</label>
-                            <select name="department_id" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" data-department required>
-                                <option value="">Select department</option>
-                                @foreach($departments as $dept)
-                                    <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Doctor</label>
-                            <select name="doctor" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" data-doctor required>
-                                <option value="">Select doctor</option>
-                                @foreach($doctors as $doc)
-                                    <option value="{{ $doc->id }}" data-dept="{{ $doc->department_id }}" {{ old('doctor') == $doc->id ? 'selected' : '' }}>{{ $doc->name }}{{ $doc->department ? ' · ' . $doc->department->name : '' }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Appointment date</label>
-                            <input type="date" name="appointment_date" value="{{ old('appointment_date', now()->toDateString()) }}" min="{{ now()->toDateString() }}" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" required>
-                        </div>
-                        <div>
-                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Time slot</label>
-                            <select name="time_slot" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" required>
-                                @foreach(['09:00 - 09:30','09:30 - 10:00','10:00 - 10:30','10:30 - 11:00','11:00 - 11:30','11:30 - 12:00','14:00 - 14:30','14:30 - 15:00','15:00 - 15:30','15:30 - 16:00','16:00 - 16:30','16:30 - 17:00'] as $slot)
-                                    <option value="{{ $slot }}" {{ old('time_slot') == $slot ? 'selected' : '' }}>{{ $slot }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Notes (optional)</label>
-                            <textarea name="notes" rows="3" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" placeholder="Describe symptoms or reason for visit...">{{ old('notes') }}</textarea>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Appointment type</label>
-                            <select name="appointment_type" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-4 focus:ring-emerald-100" required>
-                                <option value="regular">In-Person Consultation</option>
-                                <option value="video">Video Consultation</option>
-                            </select>
-                        </div>
-                        <div class="md:col-span-2 flex flex-wrap items-center gap-3">
-                            <button type="submit" class="patient-pill patient-pill-dark">Confirm booking</button>
-                            <button type="button" class="patient-pill" data-apt-close>Cancel</button>
-                            <div class="text-xs font-semibold text-slate-500">After booking, you’ll see it in the table below.</div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            @if($appointments->isEmpty())
-                <div class="patient-empty">No appointments found yet.</div>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="patient-table">
-                        <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Doctor</th>
-                            <th>Department</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($appointments as $apt)
-                            <tr>
-                                <td>{{ optional($apt->appointment_date)->format('d M Y') }}</td>
-                                <td>{{ $apt->time_slot }}</td>
-                                <td>{{ $apt->doctor?->name ?? '—' }}</td>
-                                <td>{{ $apt->department?->name ?? '—' }}</td>
-                                <td class="capitalize">{{ $apt->type }}</td>
-                                <td><span class="patient-badge badge-{{ $apt->status }}">{{ ucfirst($apt->status) }}</span></td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </section>
-
-        <!-- Reports Panel -->
-        <section class="mt-5 patient-card hidden" data-tab-panel="reports">
-            <div class="patient-card-header">
-                <h2 class="patient-card-title flex items-center gap-2">
-                    <div class="card-title-icon bg-amber-600">
+        </a>
+        <a href="{{ route('patient.reports') }}" class="patient-card hover:shadow-lg transition">
+            <div class="patient-card-header" style="border-bottom:0;margin-bottom:0;padding-bottom:0;">
+                <h2 class="patient-card-title">
+                    <span class="card-title-icon bg-amber-600">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M5 3a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5z"/></svg>
-                    </div>
-                    Lab reports
+                    </span>
+                    Reports
                 </h2>
-                <p class="patient-card-subtitle">View completed lab results and reports.</p>
+                <p class="patient-card-subtitle">Lab orders and downloadable reports.</p>
             </div>
-            @if($labOrders->isEmpty())
-                <div class="patient-empty">No lab orders found yet.</div>
-            @else
-                <div class="space-y-3">
-                    @foreach($labOrders as $order)
-                        <div class="patient-item">
-                            <div class="min-w-0">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <div class="font-semibold text-slate-900">{{ $order->labTest?->name ?? 'Lab test' }}</div>
-                                    <span class="patient-badge badge-{{ $order->status }}">{{ ucfirst($order->status) }}</span>
-                                </div>
-                                <div class="mt-1 text-sm text-slate-600">Ordered {{ optional($order->ordered_at)->format('d M Y, h:i A') }} · Doctor: {{ $order->doctor?->name ?? '—' }}</div>
-                            </div>
-                            <div class="shrink-0">
-                                @if($order->report_file)
-                                    <a class="patient-pill" href="{{ route('lab-orders.report', $order) }}" target="_blank" rel="noopener">Open report</a>
-                                @else
-                                    <span class="text-sm font-semibold text-slate-400">Pending</span>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </section>
-
-        <!-- Prescriptions Panel -->
-        <section class="mt-5 patient-card hidden" data-tab-panel="prescriptions">
-            <div class="patient-card-header">
-                <h2 class="patient-card-title flex items-center gap-2">
-                    <div class="card-title-icon bg-violet-600">
+        </a>
+        <a href="{{ route('patient.prescriptions') }}" class="patient-card hover:shadow-lg transition">
+            <div class="patient-card-header" style="border-bottom:0;margin-bottom:0;padding-bottom:0;">
+                <h2 class="patient-card-title">
+                    <span class="card-title-icon bg-violet-600">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M5 3a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5z"/></svg>
-                    </div>
+                    </span>
                     Prescriptions
                 </h2>
-                <p class="patient-card-subtitle">Medicines prescribed by doctors.</p>
+                <p class="patient-card-subtitle">Doctor issued medications and notes.</p>
             </div>
-            @if($prescriptions->isEmpty())
-                <div class="patient-empty">No prescriptions found yet.</div>
-            @else
-                <div class="space-y-4">
-                    @foreach($prescriptions as $rx)
-                        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                            <div class="flex flex-wrap items-start justify-between gap-3">
-                                <div>
-                                    <div class="text-sm font-semibold text-slate-900">Doctor: {{ $rx->doctor?->name ?? '—' }}
-                                        @if($rx->appointment)
-                                            <span class="text-slate-400">·</span> Appointment: {{ optional($rx->appointment->appointment_date)->format('d M Y') }}
-                                        @endif
-                                    </div>
-                                    @if($rx->diagnosis)
-                                        <div class="mt-1 text-sm text-slate-600">Diagnosis: {{ $rx->diagnosis }}</div>
-                                    @endif
-                                </div>
-                                <div class="text-xs font-semibold text-slate-500">{{ $rx->created_at?->format('d M Y') }}</div>
-                            </div>
-                            @if($rx->items->isNotEmpty())
-                                <div class="mt-4 overflow-x-auto">
-                                    <table class="patient-table">
-                                        <thead>
-                                        <tr>
-                                            <th>Medicine</th>
-                                            <th>Dosage</th>
-                                            <th>Frequency</th>
-                                            <th>Duration</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($rx->items as $item)
-                                            <tr>
-                                                <td>{{ $item->medicine?->name ?? '—' }}</td>
-                                                <td>{{ $item->dosage ?? '—' }}</td>
-                                                <td>{{ $item->frequency ?? '—' }}</td>
-                                                <td>{{ $item->duration ?? '—' }}</td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @endif
-                            @if($rx->notes)
-                                <div class="mt-3 text-sm text-slate-600"><span class="font-semibold text-slate-800">Notes:</span> {{ $rx->notes }}</div>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </section>
-
-        <!-- Invoices Panel -->
-        <section class="mt-5 patient-card hidden" data-tab-panel="invoices">
-            <div class="patient-card-header">
-                <h2 class="patient-card-title flex items-center gap-2">
-                    <div class="card-title-icon bg-rose-600">
+        </a>
+        <a href="{{ route('patient.invoices') }}" class="patient-card hover:shadow-lg transition">
+            <div class="patient-card-header" style="border-bottom:0;margin-bottom:0;padding-bottom:0;">
+                <h2 class="patient-card-title">
+                    <span class="card-title-icon bg-rose-600">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z"/></svg>
-                    </div>
+                    </span>
                     Invoices
                 </h2>
-                <p class="patient-card-subtitle">Billing details and payment status.</p>
+                <p class="patient-card-subtitle">Billing details and payments.</p>
             </div>
-            @if($invoices->isEmpty())
-                <div class="patient-empty">No invoices found yet.</div>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="patient-table">
-                        <thead>
-                        <tr>
-                            <th>Invoice</th>
-                            <th>Total</th>
-                            <th>Paid</th>
-                            <th>Due</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($invoices as $inv)
-                            <tr>
-                                <td>{{ $inv->invoice_number ?? ('#' . $inv->id) }}</td>
-                                <td>₹{{ number_format((float) $inv->total_amount, 2) }}</td>
-                                <td>₹{{ number_format((float) $inv->paid_amount, 2) }}</td>
-                                <td>₹{{ number_format((float) $inv->due_amount, 2) }}</td>
-                                <td><span class="patient-badge badge-{{ $inv->status }}">{{ ucfirst($inv->status) }}</span></td>
-                                <td class="text-right">
-                                    @if((float) $inv->due_amount > 0)
-                                        <a href="{{ route('patient.invoices.payment.create', $inv) }}" class="patient-pill patient-pill-dark">Pay now</a>
-                                    @else
-                                        <span class="text-sm font-semibold text-emerald-700">Paid</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </section>
-
-        <!-- Profile Panel -->
-        <section class="mt-5 patient-card hidden" data-tab-panel="profile">
-            <div class="patient-card-header">
-                <h2 class="patient-card-title flex items-center gap-2">
-                    <div class="card-title-icon bg-emerald-600">
+        </a>
+        <a href="{{ route('patient.profile') }}" class="patient-card hover:shadow-lg transition">
+            <div class="patient-card-header" style="border-bottom:0;margin-bottom:0;padding-bottom:0;">
+                <h2 class="patient-card-title">
+                    <span class="card-title-icon bg-emerald-600">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
-                    </div>
-                    My Profile
+                    </span>
+                    Profile
                 </h2>
-                <p class="patient-card-subtitle">Update your personal and medical information.</p>
+                <p class="patient-card-subtitle">Personal and medical details.</p>
             </div>
-            <form method="POST" action="{{ route('patient.profile.update') }}" enctype="multipart/form-data">
-                @csrf @method('PUT')
-                <div class="profile-avatar-wrap">
-                    @if(isset($patient->avatar) && $patient->avatar)
-                        <img src="{{ asset('storage/'.$patient->avatar) }}" alt="Avatar" class="profile-avatar">
-                    @else
-                        <div class="profile-avatar-placeholder">{{ strtoupper(substr($patient->name ?? 'P', 0, 1)) }}</div>
-                    @endif
-                    <div>
-                        <div style="font-weight:800;font-size:0.95rem;color:#0f172a;">{{ $patient->name }}</div>
-                        <div style="font-size:0.8rem;color:#64748b;margin-top:0.15rem;">{{ $user->email }}</div>
-                        <label style="margin-top:0.6rem;display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#10b981;cursor:pointer;">
-                            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-                            Change Photo
-                            <input type="file" name="avatar" accept="image/*" style="display:none;" onchange="this.parentNode.querySelector('span').textContent=this.files[0]?.name??''">
-                            <span style="color:#94a3b8;font-weight:500;"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="profile-section-title">Personal Information</div>
-                <div class="profile-field-group">
-                    <div class="profile-field">
-                        <label>Full Name *</label>
-                        <input class="profile-input" type="text" name="name" value="{{ old('name', $patient->name) }}" required>
-                    </div>
-                    <div class="profile-field">
-                        <label>Phone</label>
-                        <input class="profile-input" type="text" name="phone" value="{{ old('phone', $patient->phone) }}">
-                    </div>
-                    <div class="profile-field">
-                        <label>Date of Birth</label>
-                        <input class="profile-input" type="date" name="dob" value="{{ old('dob', $patient->dob?->format('Y-m-d')) }}">
-                    </div>
-                    <div class="profile-field">
-    <label>Gender</label>
-
-    <select class="profile-input" name="gender">
-        <option value="">Select</option>
-        <option value="male" {{ old('gender', $patient->gender) == 'male' ? 'selected' : '' }}>Male</option>
-        <option value="female" {{ old('gender', $patient->gender) == 'female' ? 'selected' : '' }}>Female</option>
-        <option value="other" {{ old('gender', $patient->gender) == 'other' ? 'selected' : '' }}>Other</option>
-    </select>
-</div>
-                    <div class="profile-field" style="grid-column:1/-1">
-                        <label>Address</label>
-                        <textarea class="profile-input" name="address" rows="2">{{ old('address', $patient->address) }}</textarea>
-                    </div>
-                </div>
-
-                <div class="profile-section-title">Medical Information</div>
-                <div class="profile-field-group">
-                    <div class="profile-field">
-                        <label>Blood Group</label>
-                        <select class="profile-input" name="blood_group">
-                            <option value="">Select</option>
-                            @foreach(['A+','A-','B+','B-','AB+','AB-','O+','O-'] as $bg_opt)
-                                <option value="{{ $bg_opt }}" {{ old('blood_group', $patient->blood_group ?? '') === $bg_opt ? 'selected' : '' }}>{{ $bg_opt }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="profile-field">
-                        <label>Allergies</label>
-                        <input class="profile-input" type="text" name="allergies" value="{{ old('allergies', $patient->allergies ?? '') }}" placeholder="e.g. Penicillin, Dust">
-                    </div>
-                    <div class="profile-field" style="grid-column:1/-1">
-                        <label>Chronic Diseases</label>
-                        <input class="profile-input" type="text" name="chronic_diseases" value="{{ old('chronic_diseases', $patient->chronic_diseases ?? '') }}" placeholder="e.g. Diabetes, Hypertension">
-                    </div>
-                </div>
-
-                <div class="profile-section-title">Emergency Contact</div>
-                <div class="profile-field-group">
-                    <div class="profile-field">
-                        <label>Contact Name</label>
-                        <input class="profile-input" type="text" name="emergency_contact_name" value="{{ old('emergency_contact_name', $patient->emergency_contact_name) }}" placeholder="e.g. Rahul Kumar">
-                    </div>
-                    <div class="profile-field">
-                        <label>Contact Phone</label>
-                        <input class="profile-input" type="text" name="emergency_contact" value="{{ old('emergency_contact', $patient->emergency_contact) }}" placeholder="e.g. +91 98765 43210">
-                    </div>
-                </div>
-
-                <div style="margin-top:1.5rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
-                    <button type="submit" class="patient-pill patient-pill-dark">
-                        <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Save Profile
-                    </button>
-                    <a href="{{ route('patient.change-password.edit') }}" class="patient-pill">
-                        <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
-                        Change Password
-                    </a>
-                </div>
-            </form>
-        </section>
+        </a>
     </div>
-
-    <script>
-        const urlTab = new URLSearchParams(window.location.search).get('tab');
-        if (urlTab) {
-            const targetBtn = document.querySelector('[data-tab="'+urlTab+'"]');
-            if (targetBtn) targetBtn.click();
-        }
-    </script>
 @endsection
 
