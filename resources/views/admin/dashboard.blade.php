@@ -88,6 +88,17 @@
                 <p class="kpi-label">Pending Dues</p>
             </div>
         </div>
+
+        {{-- Health Package Bookings --}}
+        <div class="kpi-card">
+            <div class="kpi-icon bg-cyan-50">
+                <svg class="w-6 h-6 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5V6a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 004.5 6v12A2.25 2.25 0 006.75 20.25h10.5A2.25 2.25 0 0019.5 18V8.25M18 7.5h-3.75A1.5 1.5 0 0112.75 6V4.25"/></svg>
+            </div>
+            <div>
+                <p class="kpi-value">{{ number_format($healthPackageStats['total']) }}</p>
+                <p class="kpi-label">Health Package Bookings</p>
+            </div>
+        </div>
     </div>
 
     {{-- ═══ Charts Row ════════════════════════════════════════ --}}
@@ -216,6 +227,45 @@
                             </div>
                             <span class="badge badge-danger">{{ $med->stock_quantity }} left</span>
                         </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            {{-- Health Package Bookings --}}
+            <div class="admin-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-semibold text-gray-900">Health Package Bookings</h2>
+                    <a href="{{ route('admin.health-package-bookings.index') }}" class="text-sm text-primary-600 font-medium hover:underline">View all →</a>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 mb-4 text-center">
+                    <div class="rounded-xl bg-slate-50 p-3">
+                        <p class="text-lg font-bold text-slate-900">{{ number_format($healthPackageStats['total']) }}</p>
+                        <p class="text-[11px] uppercase tracking-wide text-slate-500">Total</p>
+                    </div>
+                    <div class="rounded-xl bg-emerald-50 p-3">
+                        <p class="text-lg font-bold text-emerald-700">{{ number_format($healthPackageStats['confirmed']) }}</p>
+                        <p class="text-[11px] uppercase tracking-wide text-emerald-600">Confirmed</p>
+                    </div>
+                    <div class="rounded-xl bg-amber-50 p-3">
+                        <p class="text-lg font-bold text-amber-700">₹{{ number_format($healthPackageStats['revenue']) }}</p>
+                        <p class="text-[11px] uppercase tracking-wide text-amber-600">Paid</p>
+                    </div>
+                </div>
+
+                @if($recentHealthPackageBookings->isEmpty())
+                    <p class="text-sm text-gray-400">No health package bookings yet.</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach($recentHealthPackageBookings as $booking)
+                            <div class="flex items-start justify-between gap-3 border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">{{ $booking->patient_name }}</p>
+                                    <p class="text-xs text-gray-400">{{ $booking->package_name }} · {{ $booking->preferred_date?->format('M d, Y') }}</p>
+                                </div>
+                                <span class="badge {{ $booking->booking_status === 'confirmed' ? 'badge-info' : ($booking->booking_status === 'completed' ? 'badge-success' : ($booking->booking_status === 'cancelled' ? 'badge-danger' : 'badge-warning')) }}">{{ ucfirst($booking->booking_status) }}</span>
+                            </div>
                         @endforeach
                     </div>
                 @endif

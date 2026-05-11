@@ -53,6 +53,7 @@ class RegisterController extends Controller
                 'success' => true,
                 'message' => 'Account created successfully.',
                 'redirect' => route('patient.dashboard'),
+                'csrf_token' => csrf_token(),
             ]);
         }
 

@@ -1,12 +1,12 @@
-<!-- Package Checkout Modal -->
-<div id="package-checkout-modal" class="fixed inset-0 z-[100] hidden overflow-y-auto">
+<!-- Lab Booking Modal -->
+<div id="labBookingModal" class="fixed inset-0 z-[100] hidden overflow-y-auto">
     <!-- Backdrop -->
-    <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" data-close-modal="package-checkout-modal"></div>
+    <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" data-close-modal="labBookingModal"></div>
 
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="relative bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-4xl sm:w-full">
             <div class="absolute top-6 right-6 z-10">
-                <button data-close-modal="package-checkout-modal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full cursor-pointer">
+                <button data-close-modal="labBookingModal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full cursor-pointer">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -15,9 +15,9 @@
                 <!-- Left Side: Summary -->
                 <div class="lg:w-1/3 bg-primary-600 p-8 text-white relative">
                     <div class="relative z-10">
-                        <span class="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full uppercase tracking-wider">Health Package</span>
-                        <h2 class="text-2xl font-bold mt-4" id="checkout-pkg-name">Comprehensive Check</h2>
-                        <p class="text-primary-100 mt-2">Invest in your health with our curated check-up plans.</p>
+                        <span class="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full uppercase tracking-wider">Booking Summary</span>
+                        <h2 class="text-2xl font-bold mt-4" id="modal_test_name_display">Lab Test</h2>
+                        <p class="text-primary-100 mt-2">Accurate diagnostics at your doorstep.</p>
                     </div>
 
                     <div class="space-y-6 mt-8 relative z-10">
@@ -27,7 +27,7 @@
                             </div>
                             <div>
                                 <p class="text-xs text-primary-200">Total Amount</p>
-                                <p class="text-xl font-bold" id="checkout-pkg-price">₹0</p>
+                                <p class="text-xl font-bold" id="modal_test_price_display">₹0</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-4">
@@ -38,17 +38,17 @@
                         </div>
                     </div>
 
-                    <div class="mt-12 p-4 bg-white/10 rounded-2xl border border-white/10 relative z-10 text-sm italic">
-                        <p class="text-primary-100">Package includes a detailed electronic report and consultation with a general physician.</p>
+                    <div class="mt-12 p-4 bg-white/10 rounded-2xl border border-white/10 relative z-10">
+                        <p class="text-xs text-primary-100 italic">"Our phlebotomists follow strict hygiene protocols for safe home collection."</p>
                     </div>
                 </div>
 
                 <!-- Right Side: Form -->
                 <div class="lg:w-2/3 p-8 lg:p-10 max-h-[85vh] overflow-y-auto">
-                    <form action="{{ route('checkout.process') }}" method="POST" id="package-checkout-form">
+                    <form action="{{ route('lab-bookings.store') }}" method="POST" id="labBookingForm">
                         @csrf
-                        <input type="hidden" name="package_name" id="hidden-pkg-name">
-                        <input type="hidden" name="package_price" id="hidden-pkg-price">
+                        <input type="hidden" name="test_name" id="modal_test_name_input">
+                        <input type="hidden" name="test_price" id="modal_test_price_input">
 
                         <div class="space-y-8">
                             <!-- Section: Patient Details -->
@@ -57,7 +57,7 @@
                                 <div class="grid sm:grid-cols-2 gap-5">
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">Full Name <span class="text-red-500">*</span></label>
-                                        <input type="text" name="name" required placeholder="Enter patient's name" 
+                                        <input type="text" name="patient_name" required placeholder="Enter patient's name" 
                                                value="{{ Auth::check() ? Auth::user()->name : '' }}"
                                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all">
                                     </div>
@@ -146,7 +146,7 @@
                             <!-- Notes -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-1.5">Additional Notes (Optional)</label>
-                                <textarea name="notes" rows="3" placeholder="Any specific health concerns or instructions?" 
+                                <textarea name="notes" rows="3" placeholder="Any specific instructions for the phlebotomist?" 
                                           class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"></textarea>
                             </div>
 
@@ -177,8 +177,8 @@
                                 </div>
                             </div>
 
-                            <button type="submit" id="package-confirm-btn" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary-500/25 transition-all active:scale-[0.98]">
-                                Confirm Package Booking
+                            <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary-500/25 transition-all active:scale-[0.98]">
+                                Confirm Lab Booking
                             </button>
                         </div>
                     </form>

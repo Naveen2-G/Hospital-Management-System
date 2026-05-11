@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\HealthPackageBooking;
+use App\Models\LabBooking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 
-class CheckoutController extends Controller
+class LabBookingController extends Controller
 {
-    public function process(Request $request)
+    public function store(Request $request)
     {
-        // Validate request
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'patient_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
             'gender' => 'required|in:Male,Female,Other',
@@ -25,52 +24,46 @@ class CheckoutController extends Controller
             'pincode' => 'required|string|max:10',
             'preferred_date' => 'required|date|after_or_equal:today',
             'preferred_time_slot' => 'required|string',
-            'package_name' => 'required|string|max:255',
-            'package_price' => 'required|numeric',
+            'test_name' => 'required|string|max:255',
+            'test_price' => 'required|numeric',
             'notes' => 'nullable|string',
             'payment_method' => 'required|in:online,home',
         ]);
 
-        $data['patient_name'] = $data['name']; // Align with model
-        unset($data['name']);
-        
         $data['user_id'] = Auth::id();
         $data['payment_status'] = 'pending';
         $data['booking_status'] = 'pending';
 
-        $booking = HealthPackageBooking::create($data);
+        $booking = LabBooking::create($data);
 
         if ($data['payment_method'] === 'online') {
             return $this->processOnlinePayment($booking);
         }
 
-        return redirect()->route('checkout.success', ['id' => $booking->id])
+        return redirect()->route('lab-bookings.success', $booking->id)
             ->with('success', 'Booking confirmed. Please pay at home.');
     }
 
-    private function processOnlinePayment(HealthPackageBooking $booking)
+    private function processOnlinePayment(LabBooking $booking)
     {
         $stripeSecret = config('services.stripe.secret');
         if (!$stripeSecret) {
-            return back()->with('error', 'Stripe is not configured correctly. Please contact support.');
+            return back()->with('error', 'Stripe is not configured correctly.');
         }
 
-        // Set Stripe secret key
         Stripe::setApiKey($stripeSecret);
 
-        // Amount in paise
-        $amountInPaise = (int) ($booking->package_price * 100);
+        $amountInPaise = (int) ($booking->test_price * 100);
 
         try {
-            // Create Stripe Checkout Session
-            $checkout_session = Session::create([
+            $session = Session::create([
                 'payment_method_types' => ['card'],
                 'line_items' => [[
                     'price_data' => [
                         'currency' => 'inr',
                         'product_data' => [
-                            'name' => $booking->package_name,
-                            'description' => 'Health Package Booking for ' . $booking->patient_name,
+                            'name' => $booking->test_name,
+                            'description' => 'Lab Test Booking for ' . $booking->patient_name,
                         ],
                         'unit_amount' => $amountInPaise,
                     ],
@@ -78,20 +71,20 @@ class CheckoutController extends Controller
                 ]],
                 'mode' => 'payment',
                 'customer_email' => $booking->email,
-                'success_url' => route('checkout.payment.success', $booking->id) . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => route('health-packages') . '?error=payment_cancelled',
+                'success_url' => route('lab-bookings.payment.success', $booking->id) . '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => route('lab-tests') . '?error=payment_cancelled',
                 'metadata' => [
                     'booking_id' => $booking->id,
                 ],
             ]);
 
-            return redirect($checkout_session->url);
+            return redirect($session->url);
         } catch (\Exception $e) {
             return back()->with('error', 'Error creating payment session: ' . $e->getMessage());
         }
     }
 
-    public function paymentSuccess(Request $request, HealthPackageBooking $booking)
+    public function paymentSuccess(Request $request, LabBooking $booking)
     {
         $sessionId = $request->get('session_id');
         if ($sessionId) {
@@ -111,21 +104,18 @@ class CheckoutController extends Controller
             }
         }
 
-        return redirect()->route('checkout.success', ['id' => $booking->id]);
+        return redirect()->route('lab-bookings.success', $booking->id);
     }
 
-    public function success(Request $request)
+    public function success(LabBooking $booking)
     {
-        $booking = null;
-        if ($request->has('id')) {
-            $booking = HealthPackageBooking::find($request->id);
-        }
-        
-        return view('pages.package-booking-success', compact('booking'));
+        return view('pages.lab-booking-success', compact('booking'));
     }
 
-    public function cancel()
+    public function receipt(LabBooking $booking)
     {
-        return redirect()->route('health-packages')->with('error', 'Payment was cancelled.');
+        // For simplicity, we'll just return a printable view as the "receipt"
+        // or a raw HTML that can be printed.
+        return view('pages.lab-booking-receipt', compact('booking'));
     }
 }

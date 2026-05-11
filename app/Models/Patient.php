@@ -12,10 +12,9 @@ class Patient extends Model
         'allergies', 'chronic_diseases', 'avatar',
     ];
 
-    protected function casts(): array
-    {
-        return ['dob' => 'date'];
-    }
+    protected $casts = [
+        'dob' => 'date',
+    ];
 
     public function user()
     {

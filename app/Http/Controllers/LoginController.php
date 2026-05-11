@@ -51,6 +51,7 @@ class LoginController extends Controller
                     'success' => true,
                     'message' => 'Login successful!',
                     'redirect' => $redirect,
+                    'csrf_token' => csrf_token(),
                     'user' => [
                         'name' => $user->name,
                         'role' => $user->role,

@@ -43,7 +43,7 @@
                 </div>
 
                 <!-- Form -->
-                <form id="appointment-form" action="{{ route('patient.appointments.store') }}" method="POST">
+                <form id="appointment-form" action="{{ route('patient.appointments.store') }}" method="POST" novalidate>
                     @csrf
                     <input type="hidden" id="apt-type" name="appointment_type" value="regular">
                     <!-- Step 1: Patient Info -->
@@ -53,12 +53,12 @@
                                 <label for="apt-name" class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
                                 <div class="relative">
                                     <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
-                                    <input type="text" id="apt-name" placeholder="Enter your full name" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all" required>
+                                    <input type="text" id="apt-name" name="name" placeholder="Enter your full name" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all">
                                 </div>
                             </div>
                             <div>
                                 <label for="apt-age" class="block text-sm font-medium text-gray-700 mb-1.5">Age</label>
-                                <input type="number" id="apt-age" placeholder="25" min="1" max="120" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all" required>
+                                <input type="number" id="apt-age" name="age" placeholder="25" min="1" max="120" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -66,14 +66,14 @@
                                 <label for="apt-email" class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
                                 <div class="relative">
                                     <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
-                                    <input type="email" id="apt-email" placeholder="you@example.com" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all" required>
+                                    <input type="email" id="apt-email" name="email" placeholder="you@example.com" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all">
                                 </div>
                             </div>
                             <div>
                                 <label for="apt-phone" class="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
                                 <div class="relative">
                                     <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
-                                    <input type="tel" id="apt-phone" placeholder="+91 98765 43210" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all" required>
+                                    <input type="tel" id="apt-phone" name="phone" placeholder="+91 98765 43210" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all">
                                 </div>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">Gender</label>
                             <div class="flex gap-3">
                                 <label class="flex-1 flex items-center justify-center gap-2 py-3 border border-gray-200 rounded-xl cursor-pointer hover:border-primary-300 hover:bg-primary-50/50 transition-all has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 has-[:checked]:text-primary-700">
-                                    <input type="radio" name="gender" value="male" class="sr-only" required>
+                                    <input type="radio" name="gender" value="male" class="sr-only">
                                     <span class="text-sm font-medium">Male</span>
                                 </label>
                                 <label class="flex-1 flex items-center justify-center gap-2 py-3 border border-gray-200 rounded-xl cursor-pointer hover:border-primary-300 hover:bg-primary-50/50 transition-all has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 has-[:checked]:text-primary-700">
@@ -103,7 +103,7 @@
                     <div id="apt-step-2" class="space-y-4 hidden">
                         <div>
                             <label for="apt-department" class="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
-                            <select id="apt-department" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer" required>
+                            <select id="apt-department" name="department_id" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer">
                                 <option value="">Select Department</option>
                                 @if(isset($departments))
                                     @foreach($departments as $dept)
@@ -124,7 +124,7 @@
                         </div>
                         <div>
                             <label for="apt-doctor" class="block text-sm font-medium text-gray-700 mb-1.5">Preferred Doctor</label>
-                            <select id="apt-doctor" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer" required>
+                            <select id="apt-doctor" name="doctor" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer">
                                 <option value="">Select Doctor</option>
                                 @if(isset($doctors))
                                     @foreach($doctors as $doc)
@@ -136,11 +136,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label for="apt-date" class="block text-sm font-medium text-gray-700 mb-1.5">Preferred Date</label>
-                                <input type="date" id="apt-date" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all" required>
+                                <input type="date" id="apt-date" name="appointment_date" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all">
                             </div>
                             <div>
                                 <label for="apt-time" class="block text-sm font-medium text-gray-700 mb-1.5">Preferred Time</label>
-                                <select id="apt-time" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer" required>
+                                <select id="apt-time" name="time_slot" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer">
                                     <option value="">Select Time Slot</option>
                                     <option value="09:00">09:00 AM</option>
                                     <option value="09:30">09:30 AM</option>
@@ -158,7 +158,7 @@
                         </div>
                         <div>
                             <label for="apt-reason" class="block text-sm font-medium text-gray-700 mb-1.5">Reason for Visit</label>
-                            <textarea id="apt-reason" rows="3" placeholder="Briefly describe your symptoms or reason for the appointment..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all resize-none"></textarea>
+                            <textarea id="apt-reason" name="notes" rows="3" placeholder="Briefly describe your symptoms or reason for the appointment..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all resize-none"></textarea>
                         </div>
                         <div class="flex gap-3">
                             <button type="button" id="apt-back-2" class="flex-1 py-3.5 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
@@ -192,33 +192,11 @@
                             <button type="button" id="apt-back-3" class="flex-1 py-3.5 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all">
                                 ← Back
                             </button>
-                            <button type="submit" class="flex-1 py-3.5 bg-gradient-to-r from-emerald-500 to-primary-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-primary-700 shadow-lg shadow-emerald-500/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
+                            <button type="submit" id="apt-confirm-btn" class="flex-1 py-3.5 bg-gradient-to-r from-emerald-500 to-primary-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-primary-700 shadow-lg shadow-emerald-500/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
                                 ✓ Confirm Appointment
                             </button>
                         </div>
                         
-                        <!-- Inline Auth Message (Hidden by default) -->
-                        <div id="apt-auth-required" class="hidden mt-4 p-5 bg-orange-50 border border-orange-200 rounded-2xl">
-                            <div class="flex gap-4 items-start">
-                                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center shrink-0">
-                                    <svg class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-gray-900 mb-1">Account Required</h4>
-                                    <p class="text-sm text-gray-600 mb-4">To confirm your appointment, you need to have an account. Your appointment details will be saved!</p>
-                                    <div class="flex flex-col sm:flex-row gap-3">
-                                        <button type="button" data-close-modal="appointment-modal" data-switch-modal="login-modal" class="flex-1 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-all">
-                                            Login
-                                        </button>
-                                        <button type="button" data-close-modal="appointment-modal" data-switch-modal="register-modal" class="flex-1 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all">
-                                            Create Account
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Success State -->

@@ -68,7 +68,12 @@
                 </div>
                 <div class="text-right shrink-0">
                     <div class="text-lg font-bold text-primary-600">{{ $t['price'] }}</div>
-                    <button class="mt-1 px-4 py-1.5 text-xs font-semibold text-primary-600 border border-primary-200 rounded-lg hover:bg-primary-50 transition-colors cursor-pointer">Book Test</button>
+                    <button data-open-modal="labBookingModal" 
+                            data-test-name="{{ $t['name'] }}" 
+                            data-test-price="{{ $t['price'] }}"
+                            class="mt-1 px-4 py-1.5 text-xs font-semibold text-primary-600 border border-primary-200 rounded-lg hover:bg-primary-50 transition-colors cursor-pointer">
+                        Book Test
+                    </button>
                 </div>
             </div>
             @endforeach

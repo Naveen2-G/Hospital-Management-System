@@ -339,6 +339,46 @@ document.querySelectorAll('[data-open-modal]').forEach(btn => {
             }
         }
 
+        // Handle lab test selection for lab booking modal
+        if (btn.dataset.openModal === 'labBookingModal') {
+            const testName = btn.dataset.testName;
+            const testPrice = btn.dataset.testPrice;
+
+            if (testName) {
+                const nameDisplay = document.getElementById('modal_test_name_display');
+                const nameInput = document.getElementById('modal_test_name_input');
+                if (nameDisplay) nameDisplay.textContent = testName;
+                if (nameInput) nameInput.value = testName;
+            }
+            if (testPrice) {
+                const priceDisplay = document.getElementById('modal_test_price_display');
+                const priceInput = document.getElementById('modal_test_price_input');
+                if (priceDisplay) priceDisplay.textContent = testPrice;
+                let numericPrice = testPrice.replace(/[₹,]/g, '').trim();
+                if (priceInput) priceInput.value = numericPrice;
+            }
+        }
+
+        // Handle package selection for package checkout modal
+        if (btn.dataset.openModal === 'package-checkout-modal') {
+            const pkgName = btn.dataset.pkgName;
+            const pkgPrice = btn.dataset.pkgPrice;
+            const pkgDisplayPrice = btn.dataset.pkgDisplayPrice;
+
+            if (pkgName) {
+                const nameDisplay = document.getElementById('checkout-pkg-name');
+                const nameInput = document.getElementById('hidden-pkg-name');
+                if (nameDisplay) nameDisplay.textContent = pkgName;
+                if (nameInput) nameInput.value = pkgName;
+            }
+            if (pkgPrice && pkgDisplayPrice) {
+                const priceDisplay = document.getElementById('checkout-pkg-price');
+                const priceInput = document.getElementById('hidden-pkg-price');
+                if (priceDisplay) priceDisplay.textContent = pkgDisplayPrice;
+                if (priceInput) priceInput.value = pkgPrice;
+            }
+        }
+
         if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
             mobileMenu.classList.add('hidden');
             menuIconOpen?.classList.remove('hidden');
@@ -358,7 +398,7 @@ document.querySelectorAll('[data-close-modal]').forEach(btn => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') ['login-modal', 'register-modal', 'appointment-modal', 'forgot-password-modal'].forEach(closeModal);
+    if (e.key === 'Escape') ['login-modal', 'register-modal', 'appointment-modal', 'forgot-password-modal', 'labBookingModal', 'package-checkout-modal'].forEach(closeModal);
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -390,6 +430,7 @@ if (loginForm) {
     addLiveValidation(loginPassword, [{ type: 'required', msg: 'Password is mandatory' }, { type: 'minLength', value: 6, msg: 'Password must be at least 6 characters' }]);
 
     loginForm.addEventListener('submit', async (e) => {
+        console.log('Login form submitted');
         e.preventDefault();
         let valid = true;
         if (!validateField(loginEmail, [{ type: 'required', msg: 'Email address is mandatory' }, { type: 'email' }])) { valid = false; }
@@ -411,22 +452,70 @@ if (loginForm) {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
                 },
                 body: formData,
             });
 
+            if (response.status === 419) {
+                const lastReload = sessionStorage.getItem('last_419_reload');
+                const now = Date.now();
+                if (lastReload && (now - lastReload < 10000)) {
+                    console.error('Rapid 419 reloads detected. Stopping loop.');
+                    return;
+                }
+                sessionStorage.setItem('last_419_reload', now);
+                alert('Your security token has expired. The page will now reload to refresh your session.');
+                location.reload();
+                return;
+            }
+
             const data = await response.json();
 
             if (response.ok && data.success) {
+                // Update CSRF tokens across the page
+                if (data.csrf_token) {
+                    document.querySelectorAll('meta[name="csrf-token"]').forEach(el => el.content = data.csrf_token);
+                    document.querySelectorAll('input[name="_token"]').forEach(el => el.value = data.csrf_token);
+                }
+                
                 // Success — show green state then redirect
                 btn.innerHTML = '✓ Signed in successfully!';
                 btn.classList.remove('from-primary-500', 'to-primary-600');
                 btn.classList.add('from-emerald-500', 'to-emerald-600');
                 setTimeout(() => {
-                    if (sessionStorage.getItem('pendingAppointment')) {
-                        window.location.href = window.location.pathname + '?resume_booking=1';
+                    const pendingRegular = sessionStorage.getItem('pending_regular_appointment');
+                    const pendingSpecial = sessionStorage.getItem('pending_special_booking');
+                    
+                    if (pendingRegular && (document.getElementById('appointment-modal'))) {
+                        closeModal('login-modal');
+                        btn.innerHTML = '✓ Finalizing Appointment...';
+                        
+                        setTimeout(() => {
+                            const confirmBtn = document.getElementById('apt-confirm-btn');
+                            if (confirmBtn) {
+                                openModal('appointment-modal');
+                                showAptStep(2); 
+                                confirmBtn.click();
+                            } else {
+                                window.location.href = data.redirect || '/patient/dashboard';
+                            }
+                        }, 300);
+                    } else if (pendingSpecial && (document.getElementById('special-booking-modal'))) {
+                        closeModal('login-modal');
+                        btn.innerHTML = '✓ Finalizing Request...';
+                        
+                        setTimeout(() => {
+                            const specialSubmitBtn = document.getElementById('sb-submit-btn');
+                            if (specialSubmitBtn) {
+                                openModal('special-booking-modal');
+                                specialSubmitBtn.click();
+                            } else {
+                                window.location.href = data.redirect || '/patient/dashboard';
+                            }
+                        }, 300);
                     } else {
-                        window.location.href = data.redirect || '/';
+                        window.location.href = data.redirect || '/patient/dashboard';
                     }
                 }, 800);
             } else {
@@ -510,14 +599,27 @@ if (registerForm) {
                 return;
             }
 
+            // Update CSRF tokens across the page
+            if (payload?.csrf_token) {
+                document.querySelectorAll('meta[name="csrf-token"]').forEach(el => el.content = payload.csrf_token);
+                document.querySelectorAll('input[name="_token"]').forEach(el => el.value = payload.csrf_token);
+            }
+
             btn.innerHTML = '✓ Account created!';
             btn.classList.remove('from-emerald-500', 'to-primary-600');
             btn.classList.add('from-emerald-500', 'to-emerald-600');
 
             const redirect = payload?.redirect || '/patient/dashboard';
             setTimeout(() => {
-                if (sessionStorage.getItem('pendingAppointment')) {
-                    window.location.href = window.location.pathname + '?resume_booking=1';
+                const pending = sessionStorage.getItem('pendingAppointment');
+                console.log('Registration successful, pending appointment:', pending);
+                if (pending) {
+                    closeModal('register-modal');
+                    setTimeout(() => {
+                        const btn = document.getElementById('apt-confirm-btn');
+                        console.log('Clicking confirm button', btn);
+                        btn?.click();
+                    }, 200);
                 } else {
                     window.location.href = redirect;
                 }
@@ -642,43 +744,28 @@ document.getElementById('apt-back-3')?.addEventListener('click', () => showAptSt
 const appointmentForm = document.getElementById('appointment-form');
 if (appointmentForm) {
     appointmentForm.addEventListener('submit', async (e) => {
+        console.log('Appointment form submitted');
         e.preventDefault();
         
-        // Get the submit button
-        const submitBtn = appointmentForm.querySelector('button[type="submit"]');
+        const submitBtn = document.getElementById('apt-confirm-btn');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Booking...';
         
         try {
-            // Collect form data
-            const formData = new FormData();
+            // Collect form data using the constructor on the form element
+            const formData = new FormData(appointmentForm);
             
-            // Get CSRF token
-            const csrfToken = document.querySelector('input[name="_token"]')?.value || appointmentForm._token?.value;
-            if (csrfToken) {
-                formData.append('_token', csrfToken);
+            // Handle resumption data if the form is empty (e.g. after a page reload)
+            const pendingData = sessionStorage.getItem('pending_regular_appointment');
+            if (pendingData && formData.get('name') === '') {
+                const dataObj = JSON.parse(pendingData);
+                Object.entries(dataObj).forEach(([key, value]) => {
+                    if (!formData.has(key) || formData.get(key) === '') {
+                        formData.set(key, value);
+                    }
+                });
             }
-            
-            // Add all form fields
-            formData.append('name', document.getElementById('apt-name')?.value || '');
-            formData.append('age', document.getElementById('apt-age')?.value || '');
-            formData.append('email', document.getElementById('apt-email')?.value || '');
-            formData.append('phone', document.getElementById('apt-phone')?.value || '');
-            
-            // Get gender
-            const genderChecked = document.querySelector('input[name="gender"]:checked');
-            if (genderChecked) {
-                formData.append('gender', genderChecked.value);
-            }
-            
-            // Get department and doctor
-            formData.append('department', document.getElementById('apt-department')?.value || '');
-            formData.append('doctor', document.getElementById('apt-doctor')?.value || '');
-            formData.append('appointment_type', document.getElementById('apt-type')?.value || 'regular');
-            formData.append('appointment_date', document.getElementById('apt-date')?.value || '');
-            formData.append('time_slot', document.getElementById('apt-time')?.value || '');
-            formData.append('notes', document.getElementById('apt-reason')?.value || '');
             
             // Submit the form
             const response = await fetch(appointmentForm.action, {
@@ -686,17 +773,36 @@ if (appointmentForm) {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
                 },
                 body: formData,
             });
 
+            if (response.status === 419) {
+                const lastReload = sessionStorage.getItem('last_419_reload');
+                const now = Date.now();
+                if (lastReload && (now - lastReload < 10000)) {
+                    console.error('Rapid 419 reloads detected. Stopping loop.');
+                    return;
+                }
+                sessionStorage.setItem('last_419_reload', now);
+                alert('Your security token has expired. The page will now reload to refresh your session.');
+                location.reload();
+                return;
+            }
+
             if (response.status === 401 || response.status === 403) {
+                console.log('Authentication required detected (401/403). Opening auth modal.');
                 const dataToSave = Object.fromEntries(formData.entries());
                 sessionStorage.setItem('pendingAppointment', JSON.stringify(dataToSave));
                 
-                // Show inline message instead of closing modal
-                document.getElementById('apt-action-buttons')?.classList.add('hidden');
-                document.getElementById('apt-auth-required')?.classList.remove('hidden');
+                // Close current modal first to ensure context is clear
+                closeModal('appointment-modal');
+                
+                // Show professional modal instead of inline message
+                setTimeout(() => {
+                    openModal('auth-required-modal');
+                }, 100);
                 
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
@@ -716,6 +822,11 @@ if (appointmentForm) {
                     circle.className = 'w-8 h-8 rounded-full bg-emerald-500 text-white text-sm font-bold flex items-center justify-center';
                     circle.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
                 });
+
+                // Redirect to dashboard after a short delay so user sees success
+                setTimeout(() => {
+                    window.location.href = '/patient/dashboard';
+                }, 2000);
             } else {
                 // Show error message
                 const errorMsg = data.message || (data.errors && Object.values(data.errors)[0]?.[0]) || 'Something went wrong. Please try again.';
@@ -802,9 +913,20 @@ if (specialBookingForm) {
                     body: formData
                 });
 
+                if (response.status === 401 || response.status === 403) {
+                    const dataToSave = Object.fromEntries(formData.entries());
+                    sessionStorage.setItem('pending_special_booking', JSON.stringify(dataToSave));
+                    closeModal('special-booking-modal');
+                    setTimeout(() => { openModal('auth-required-modal'); }, 100);
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (response.ok && data.success) {
+                    sessionStorage.removeItem('pending_special_booking');
                     specialBookingForm.classList.add('hidden');
                     const successDiv = document.getElementById('sb-success');
                     if (successDiv) successDiv.classList.remove('hidden');
@@ -1182,10 +1304,12 @@ if (doctorCards.length > 0) {
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('resume_booking') === '1') {
-        const dataStr = sessionStorage.getItem('pendingAppointment');
-        if (dataStr) {
+        const dataRegularStr = sessionStorage.getItem('pending_regular_appointment');
+        const dataSpecialStr = sessionStorage.getItem('pending_special_booking');
+        
+        if (dataRegularStr) {
             try {
-                const data = JSON.parse(dataStr);
+                const data = JSON.parse(dataRegularStr);
                 
                 // Populate the form fields manually since they have distinct IDs
                 const mapping = {

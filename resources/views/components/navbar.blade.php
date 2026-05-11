@@ -34,8 +34,32 @@
                     </svg>
                     <input type="text" name="q" placeholder="Search doctors, services..." class="w-56 pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all">
                 </form>
-                <button data-open-modal="login-modal" class="px-5 py-2.5 text-sm font-semibold text-primary-600 border border-primary-200 rounded-xl hover:bg-primary-50 hover:border-primary-400 hover:shadow-md hover:shadow-primary-500/10 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer">Login</button>
-                <button data-open-modal="register-modal" class="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary-500/20 hover:shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer">Register</button>
+
+                @guest
+                    <button data-open-modal="login-modal" class="px-5 py-2.5 text-sm font-semibold text-primary-600 border border-primary-200 rounded-xl hover:bg-primary-50 hover:border-primary-400 transition-all cursor-pointer">Login</button>
+                    <button data-open-modal="register-modal" class="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer">Register</button>
+                @endguest
+
+                @auth
+                    <div class="flex items-center gap-3 pl-2 border-l border-gray-100">
+                        <div class="text-right hidden xl:block">
+                            <p class="text-sm font-bold text-gray-900 leading-none">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-gray-500 mt-1 capitalize">{{ Auth::user()->role }}</p>
+                        </div>
+                        <a href="{{ 
+                            Auth::user()->role === 'admin' ? route('admin.dashboard') : 
+                            (Auth::user()->role === 'doctor' ? route('doctor.dashboard') : route('patient.dashboard')) 
+                        }}" class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600 hover:bg-primary-200 transition-all">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </a>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Logout">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                @endauth
             </div>
 
             <!-- Mobile Menu Button -->
@@ -67,10 +91,31 @@
                 </svg>
                 <input type="text" placeholder="Search doctors, services..." class="w-full pl-9 pr-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
             </div>
-            <div class="flex gap-2">
-                <button data-open-modal="login-modal" class="flex-1 px-4 py-3 text-sm font-semibold text-primary-600 border border-primary-200 rounded-xl hover:bg-primary-50 hover:border-primary-400 hover:shadow-md active:scale-95 transition-all duration-200 cursor-pointer">Login</button>
-                <button data-open-modal="register-modal" class="flex-1 px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl shadow-md hover:shadow-lg hover:from-primary-600 hover:to-primary-700 active:scale-95 transition-all duration-200 cursor-pointer">Register</button>
-            </div>
+            @guest
+                <div class="flex gap-2">
+                    <button data-open-modal="login-modal" class="flex-1 px-4 py-3 text-sm font-semibold text-primary-600 border border-primary-200 rounded-xl hover:bg-primary-50 transition-all cursor-pointer">Login</button>
+                    <button data-open-modal="register-modal" class="flex-1 px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl shadow-md hover:from-primary-600 transition-all cursor-pointer">Register</button>
+                </div>
+            @endguest
+
+            @auth
+                <div class="flex flex-col gap-2">
+                    <a href="{{ 
+                        Auth::user()->role === 'admin' ? route('admin.dashboard') : 
+                        (Auth::user()->role === 'doctor' ? route('doctor.dashboard') : route('patient.dashboard')) 
+                    }}" class="flex items-center justify-between px-4 py-3 bg-primary-50 text-primary-700 rounded-xl font-semibold">
+                        <span>Dashboard</span>
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST" class="w-full">
+                        @csrf
+                        <button type="submit" class="w-full px-4 py-3 text-sm font-semibold text-red-600 border border-red-100 rounded-xl hover:bg-red-50 transition-all text-left flex items-center justify-between">
+                            <span>Sign Out</span>
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        </button>
+                    </form>
+                </div>
+            @endauth
         </div>
     </div>
 </nav>

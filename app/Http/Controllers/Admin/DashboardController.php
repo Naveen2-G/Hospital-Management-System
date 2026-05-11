@@ -7,6 +7,7 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Appointment;
 use App\Models\Admission;
+use App\Models\HealthPackageBooking;
 use App\Models\Invoice;
 use App\Models\Room;
 use App\Models\Medicine;
@@ -78,6 +79,17 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        $healthPackageStats = [
+            'total' => HealthPackageBooking::count(),
+            'confirmed' => HealthPackageBooking::where('booking_status', 'confirmed')->count(),
+            'paid' => HealthPackageBooking::where('payment_status', 'paid')->count(),
+            'revenue' => HealthPackageBooking::where('payment_status', 'paid')->sum('package_price'),
+        ];
+
+        $recentHealthPackageBookings = HealthPackageBooking::orderByDesc('created_at')
+            ->limit(5)
+            ->get();
+
         return view('admin.dashboard', compact(
             'stats',
             'revenueChart',
@@ -85,7 +97,9 @@ class DashboardController extends Controller
             'recentAppointments',
             'recentActivity',
             'roomStats',
-            'lowStockMedicines'
+            'lowStockMedicines',
+            'healthPackageStats',
+            'recentHealthPackageBookings'
         ));
     }
 }

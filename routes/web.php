@@ -40,11 +40,19 @@ Route::middleware('auth')->get('/lab-orders/{labOrder}/report', [LabReportContro
 use App\Http\Controllers\CheckoutController;
 Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/checkout/{booking}/payment-success', [CheckoutController::class, 'paymentSuccess'])->name('checkout.payment.success');
 Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
 
 // ─── Special Booking (Guest) Route ────────────────────────────
 use App\Http\Controllers\SpecialBookingController;
+use App\Http\Controllers\LabBookingController;
 Route::post('/special-booking', [SpecialBookingController::class, 'store'])->name('special-booking.store');
+
+// ─── Lab Booking Routes ───────────────────────────────────────
+Route::post('/lab-bookings', [LabBookingController::class, 'store'])->name('lab-bookings.store');
+Route::get('/lab-bookings/{booking}/success', [LabBookingController::class, 'success'])->name('lab-bookings.success');
+Route::get('/lab-bookings/{booking}/payment-success', [LabBookingController::class, 'paymentSuccess'])->name('lab-bookings.payment.success');
+Route::get('/lab-bookings/{booking}/receipt', [LabBookingController::class, 'receipt'])->name('lab-bookings.receipt');
 
 // ─── Service Pages ────────────────────────────────────────────
 
@@ -247,6 +255,12 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Lab
     Route::resource('lab-tests', \App\Http\Controllers\Admin\LabController::class);
     Route::put('lab-orders/{labOrder}', [\App\Http\Controllers\Admin\LabController::class, 'updateOrder'])->name('lab-orders.update');
+    Route::resource('lab-bookings', \App\Http\Controllers\Admin\LabBookingController::class);
+
+    // Health Packages
+    Route::resource('health-package-bookings', \App\Http\Controllers\Admin\HealthPackageBookingController::class)
+        ->parameters(['health-package-bookings' => 'booking'])
+        ->only(['index', 'show', 'update', 'destroy']);
 
     // Billing
     Route::resource('billing', \App\Http\Controllers\Admin\BillingController::class);
