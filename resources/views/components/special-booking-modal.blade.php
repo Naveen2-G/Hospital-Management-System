@@ -51,7 +51,13 @@
                             <label for="sb-department" class="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
                             <select id="sb-department" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none cursor-pointer">
                                 <option value="">Select Department</option>
-                                @foreach(\App\Models\Department::all() as $dept)
+                                @php
+                                    $sbDepartments = collect();
+                                    if (\Illuminate\Support\Facades\Schema::hasTable('departments')) {
+                                        $sbDepartments = \App\Models\Department::query()->orderBy('name')->get();
+                                    }
+                                @endphp
+                                @foreach($sbDepartments as $dept)
                                     <option value="{{ $dept->id }}">{{ $dept->name }}</option>
                                 @endforeach
                             </select>
@@ -62,6 +68,14 @@
                                 <option value="">Select Doctor</option>
                                 @foreach(\App\Models\Doctor::with('department')->get() as $doc)
                                     <option value="{{ $doc->id }}" data-dept="{{ $doc->department_id }}">{{ $doc->name }} ({{ $doc->department->name ?? 'General' }})</option>
+                                @php
+                                    $sbDoctors = collect();
+                                    if (\Illuminate\Support\Facades\Schema::hasTable('doctors')) {
+                                        $sbDoctors = \App\Models\Doctor::query()->orderBy('name')->get();
+                                    }
+                                @endphp
+                                @foreach($sbDoctors as $doc)
+                                    <option value="{{ $doc->id }}" data-dept="{{ $doc->department_id }}">{{ $doc->name }}</option>
                                 @endforeach
                             </select>
                         </div>

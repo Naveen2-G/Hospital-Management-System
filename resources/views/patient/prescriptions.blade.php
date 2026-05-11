@@ -43,6 +43,7 @@
                                         <th>Dosage</th>
                                         <th>Frequency</th>
                                         <th>Duration</th>
+                                        <th>Instructions</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -52,6 +53,7 @@
                                             <td>{{ $item->dosage ?? '—' }}</td>
                                             <td>{{ $item->frequency ?? '—' }}</td>
                                             <td>{{ $item->duration ?? '—' }}</td>
+                                            <td>{{ $item->instructions ?? '—' }}</td>
                                         </tr>
                                     @endforeach
                                     </tbody>

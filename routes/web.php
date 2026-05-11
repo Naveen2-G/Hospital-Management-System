@@ -209,8 +209,10 @@ Route::prefix('doctor')->middleware(['auth'])->name('doctor.')->group(function (
     Route::get('/labs', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('labs');
     Route::get('/schedule', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('schedule');
     Route::get('/notifications', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('notifications');
+    Route::post('/notifications/mark-read', [\App\Http\Controllers\Doctor\DashboardController::class, 'markNotificationsRead'])->name('notifications.mark-read');
     Route::get('/reports', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('reports');
-    Route::get('/profile', [\App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('profile');
+    Route::get('/profile', [\App\Http\Controllers\Doctor\DashboardController::class, 'profile'])->name('profile');
+    Route::put('/profile', [\App\Http\Controllers\Doctor\DashboardController::class, 'updateProfile'])->name('profile.update');
     Route::post('/change-password', [\App\Http\Controllers\Doctor\ChangePasswordController::class, 'update'])->name('change-password.update');
 
     Route::post('/appointments/{appointment}/status', [\App\Http\Controllers\Doctor\ActionController::class, 'updateAppointmentStatus'])->name('appointments.status');
@@ -296,6 +298,8 @@ Route::prefix('patient')->middleware(['auth', 'patient'])->name('patient.')->gro
     Route::get('/profile', [\App\Http\Controllers\Patient\PortalController::class, 'profile'])->name('profile');
 
     Route::post('/appointments', [\App\Http\Controllers\Patient\AppointmentController::class, 'store'])->name('appointments.store');
+    Route::post('/appointments/{appointment}/cancel', [\App\Http\Controllers\Patient\AppointmentController::class, 'cancel'])->name('appointments.cancel');
+    Route::post('/notifications/mark-read', [\App\Http\Controllers\Patient\PortalController::class, 'markNotificationsRead'])->name('notifications.mark-read');
 
     // Change password
     Route::get('/change-password', [\App\Http\Controllers\Patient\ChangePasswordController::class, 'edit'])->name('change-password.edit');

@@ -5,6 +5,11 @@
 @section('content')
     <div class="max-w-3xl mx-auto p-6">
         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="mb-4">
+                <a href="{{ route('admin.doctors.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-white">
+                    <span aria-hidden="true">←</span> Back to Doctors
+                </a>
+            </div>
             <h2 class="text-2xl font-bold mb-4">Create Doctor Account</h2>
 
             @if(session('success'))

@@ -19,13 +19,28 @@
         @else
             <div class="space-y-3">
                 @foreach($labOrders as $order)
-                    <div class="patient-item">
+                    <div class="patient-item" style="align-items:flex-start;">
                         <div class="min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
                                 <div class="font-semibold text-slate-900">{{ $order->labTest?->name ?? 'Lab test' }}</div>
                                 <span class="patient-badge badge-{{ $order->status }}">{{ ucfirst($order->status) }}</span>
                             </div>
-                            <div class="mt-1 text-sm text-slate-600">Ordered {{ optional($order->ordered_at)->format('d M Y, h:i A') }} · Doctor: {{ $order->doctor?->name ?? '—' }}</div>
+                            <div class="mt-1 text-sm text-slate-600">
+                                Ordered {{ optional($order->ordered_at)->format('d M Y, h:i A') }}
+                                <span class="text-slate-400">·</span>
+                                Doctor: {{ $order->doctor?->name ?? '—' }}
+                                @if($order->completed_at)
+                                    <span class="text-slate-400">·</span>
+                                    Completed {{ optional($order->completed_at)->format('d M Y, h:i A') }}
+                                @endif
+                            </div>
+
+                            @if($order->result)
+                                <div class="mt-2 text-sm text-slate-600">
+                                    <span class="font-semibold text-slate-800">Details:</span>
+                                    {{ \Illuminate\Support\Str::limit($order->result, 280) }}
+                                </div>
+                            @endif
                         </div>
                         <div class="shrink-0">
                             @if($order->report_file)

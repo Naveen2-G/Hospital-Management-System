@@ -5,6 +5,7 @@ use App\Models\LabTest;
 use App\Models\LabOrder;
 use App\Models\Patient;
 use App\Models\Doctor;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -87,6 +88,20 @@ class LabController extends Controller
         }
 
         $labOrder->update($payload);
+
+        // Notify patient when report is completed / uploaded
+        if (($payload['status'] ?? null) === 'completed') {
+            $patientUserId = $labOrder->patient?->user_id;
+            if ($patientUserId) {
+                Notification::create([
+                    'user_id' => $patientUserId,
+                    'title' => 'Lab report updated',
+                    'message' => 'Your lab report for ' . ($labOrder->labTest?->name ?? 'lab test') . ' is now available.',
+                    'type' => 'system',
+                    'is_read' => false,
+                ]);
+            }
+        }
 
         return back()->with('success', 'Lab order updated successfully.');
     }

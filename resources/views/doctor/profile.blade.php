@@ -104,7 +104,7 @@
                     <span class="rounded-full bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-700">Save changes</span>
                 </div>
 
-                <form method="POST" action="{{ route('doctor.profile.update') }}" class="mt-6 space-y-6">
+                <form method="POST" action="{{ route('doctor.profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -166,6 +166,44 @@
                         </div>
                     </div>
 
+                    <div class="rounded-3xl border border-slate-200 bg-slate-50/80 p-5">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Professional details</p>
+                                <h4 class="mt-1 text-lg font-bold text-slate-900">Clinic profile</h4>
+                            </div>
+                            <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">Visible to patients</span>
+                        </div>
+
+                        <div class="mt-4 grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="form-label" for="doctor_specialization">Specialization</label>
+                                <input id="doctor_specialization" type="text" name="specialization" class="form-input" value="{{ old('specialization', $doctor?->specialization ?? '') }}" placeholder="Cardiology, Dermatology...">
+                                @error('specialization')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="form-label" for="doctor_experience_years">Experience (years)</label>
+                                <input id="doctor_experience_years" type="number" min="0" max="80" name="experience_years" class="form-input" value="{{ old('experience_years', $doctor?->experience_years ?? '') }}" placeholder="10">
+                                @error('experience_years')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="form-label" for="doctor_consultation_fee">Consultation fee (₹)</label>
+                                <input id="doctor_consultation_fee" type="number" min="0" step="0.01" name="consultation_fee" class="form-input" value="{{ old('consultation_fee', $doctor?->consultation_fee ?? '') }}" placeholder="500">
+                                @error('consultation_fee')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="form-label" for="doctor_image">Profile image</label>
+                                <input id="doctor_image" type="file" name="image" accept="image/*" class="form-input">
+                                @error('image')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="form-label" for="doctor_bio">About / Bio</label>
+                                <textarea id="doctor_bio" name="bio" rows="4" class="form-input" placeholder="Short professional bio...">{{ old('bio', $doctor?->bio ?? '') }}</textarea>
+                                @error('bio')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex items-center justify-end gap-3 border-t border-slate-200 pt-5">
                         <a href="{{ route('doctor.dashboard') }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</a>
                         <button type="submit" class="rounded-2xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800">Save Changes</button>
@@ -174,6 +212,31 @@
             </div>
 
             <aside class="space-y-6">
+                <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Security</p>
+                    <h4 class="mt-2 text-lg font-bold text-slate-900">Password</h4>
+                    <p class="mt-2 text-sm text-slate-600">Keep your account secure by updating your password periodically.</p>
+                    <form method="POST" action="{{ route('doctor.change-password.update') }}" class="mt-4 space-y-3">
+                        @csrf
+                        <div>
+                            <label class="form-label" for="current_password">Current password</label>
+                            <input id="current_password" name="current_password" type="password" class="form-input" required>
+                            @error('current_password')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="form-label" for="new_password">New password</label>
+                            <input id="new_password" name="new_password" type="password" class="form-input" required>
+                            @error('new_password')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="form-label" for="confirm_password">Confirm new password</label>
+                            <input id="confirm_password" name="confirm_password" type="password" class="form-input" required>
+                            @error('confirm_password')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+                        </div>
+                        <button type="submit" class="w-full rounded-2xl bg-sky-600 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-700">Change Password</button>
+                    </form>
+                </div>
+
                 <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
                     <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Quick Summary</p>
                     <div class="mt-4 space-y-3 text-sm">

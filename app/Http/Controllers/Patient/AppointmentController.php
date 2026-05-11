@@ -7,6 +7,8 @@ use App\Models\Appointment;
 use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -91,6 +93,30 @@ class AppointmentController extends Controller
             'notes' => trim((string) $data['notes']) ?: null,
         ]);
 
+        // Notify doctor + admins (persistent DB notifications)
+        if ($doctor->user_id) {
+            Notification::create([
+                'user_id' => $doctor->user_id,
+                'title' => 'New appointment booked',
+                'message' => ($patient->name ?? 'A patient') . ' booked an appointment for ' .
+                    ($appointment->appointment_date?->format('d M Y') ?? '') . ' · ' . ($appointment->time_slot ?? ''),
+                'type' => 'appointment',
+                'is_read' => false,
+            ]);
+        }
+
+        $adminIds = User::query()->where('role', 'admin')->pluck('id');
+        foreach ($adminIds as $adminId) {
+            Notification::create([
+                'user_id' => $adminId,
+                'title' => 'New appointment booked',
+                'message' => ($patient->name ?? 'A patient') . ' booked with Dr. ' . ($doctor->name ?? 'doctor') .
+                    ' on ' . ($appointment->appointment_date?->format('d M Y') ?? '') . ' · ' . ($appointment->time_slot ?? ''),
+                'type' => 'appointment',
+                'is_read' => false,
+            ]);
+        }
+
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
@@ -106,5 +132,47 @@ class AppointmentController extends Controller
         }
 
         return redirect()->route('patient.dashboard')->with('success', 'Appointment booked successfully.');
+    }
+
+    public function cancel(Request $request, Appointment $appointment)
+    {
+        $user = Auth::user();
+        abort_unless($user && $user->role === 'patient', 403);
+
+        $patient = $user->patient;
+        abort_unless($patient && $appointment->patient_id === $patient->id, 403);
+
+        if (in_array($appointment->status, ['completed', 'cancelled'], true)) {
+            return back()->with('error', 'This appointment cannot be cancelled.');
+        }
+
+        $appointment->update(['status' => 'cancelled']);
+
+        $doctor = $appointment->doctor;
+        if ($doctor && $doctor->user_id) {
+            Notification::create([
+                'user_id' => $doctor->user_id,
+                'title' => 'Appointment cancelled',
+                'message' => ($patient->name ?? 'A patient') . ' cancelled the appointment scheduled on ' .
+                    ($appointment->appointment_date?->format('d M Y') ?? '') . ' · ' . ($appointment->time_slot ?? ''),
+                'type' => 'appointment',
+                'is_read' => false,
+            ]);
+        }
+
+        $adminIds = User::query()->where('role', 'admin')->pluck('id');
+        foreach ($adminIds as $adminId) {
+            Notification::create([
+                'user_id' => $adminId,
+                'title' => 'Appointment cancelled',
+                'message' => ($patient->name ?? 'A patient') . ' cancelled an appointment with Dr. ' .
+                    ($doctor?->name ?? 'doctor') . ' on ' . ($appointment->appointment_date?->format('d M Y') ?? '') .
+                    ' · ' . ($appointment->time_slot ?? ''),
+                'type' => 'appointment',
+                'is_read' => false,
+            ]);
+        }
+
+        return back()->with('success', 'Appointment cancelled successfully.');
     }
 }

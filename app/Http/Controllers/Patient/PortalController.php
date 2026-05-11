@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Invoice;
 use App\Models\LabOrder;
+use App\Models\Notification;
 use App\Models\Prescription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,6 +52,12 @@ class PortalController extends Controller
             ->limit(15)
             ->get();
 
+        $notifications = Notification::query()
+            ->where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
         $invoices = Invoice::query()
             ->with(['items', 'payments'])
             ->where('patient_id', $patient->id)
@@ -75,6 +82,7 @@ class PortalController extends Controller
             'appointments',
             'prescriptions',
             'labOrders',
+            'notifications',
             'invoices',
             'departments',
             'doctors',
@@ -109,6 +117,23 @@ class PortalController extends Controller
     public function profile(Request $request)
     {
         return view('patient.profile', $this->portalData());
+    }
+
+    public function markNotificationsRead(Request $request)
+    {
+        $user = Auth::user();
+        abort_unless($user && $user->role === 'patient', 403);
+
+        Notification::query()
+            ->where('user_id', $user->id)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Notifications marked as read.');
     }
 }
 

@@ -14,6 +14,7 @@ use App\Models\Medicine;
 use App\Models\Prescription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -356,14 +357,29 @@ class DashboardController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'employee_id' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
             'gender' => 'nullable|in:male,female,other',
             'dob' => 'nullable|date',
             'blood_group' => 'nullable|string|max:5',
             'joining_date' => 'nullable|date',
             'address' => 'nullable|string',
+
+            // Professional details
+            'specialization' => 'nullable|string|max:255',
+            'experience_years' => 'nullable|integer|min:0|max:80',
+            'consultation_fee' => 'nullable|numeric|min:0|max:1000000',
+            'bio' => 'nullable|string|max:3000',
+            'image' => 'nullable|image|max:3072',
         ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            if ($doctor->image && Storage::disk('public')->exists($doctor->image)) {
+                Storage::disk('public')->delete($doctor->image);
+            }
+            $imagePath = $request->file('image')->store('doctor-profiles', 'public');
+        }
 
         $doctor->update([
             'name' => $data['name'],
@@ -375,14 +391,36 @@ class DashboardController extends Controller
             'blood_group' => $data['blood_group'] ?? null,
             'joining_date' => $data['joining_date'] ?? null,
             'address' => $data['address'] ?? null,
+            'specialization' => $data['specialization'] ?? ($doctor->specialization ?? null),
+            'experience_years' => $data['experience_years'] ?? ($doctor->experience_years ?? null),
+            'consultation_fee' => $data['consultation_fee'] ?? ($doctor->consultation_fee ?? null),
+            'bio' => $data['bio'] ?? ($doctor->bio ?? null),
+            ...($imagePath ? ['image' => $imagePath] : []),
         ]);
 
         $user->update([
             'name' => $data['name'],
-            'email' => $data['email'] ?? $user->email,
-            'phone' => $data['phone'] ?? $user->phone,
+            'email' => $data['email'],
+            'phone' => $data['phone'],
         ]);
 
         return redirect()->route('doctor.profile')->with('success', 'Profile updated successfully.');
+    }
+
+    public function markNotificationsRead(Request $request)
+    {
+        $user = Auth::user();
+        abort_unless($user && $user->role === 'doctor', 403);
+
+        Notification::query()
+            ->where('user_id', $user->id)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Notifications marked as read.');
     }
 }

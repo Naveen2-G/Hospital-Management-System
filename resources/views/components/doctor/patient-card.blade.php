@@ -20,20 +20,19 @@
 
     {{-- Patient Info Grid --}}
     <div class="mb-4 grid grid-cols-2 gap-3 text-sm">
-        {{-- Age & Gender --}}
         <div>
             <p class="text-xs font-medium text-slate-500">Age</p>
             <p class="text-slate-900">
-                @if ($patient->date_of_birth)
-                    {{ \Carbon\Carbon::parse($patient->date_of_birth)->age }} yrs
+                @if ($patient->dob)
+                    {{ $patient->dob->age }} yrs
                 @else
-                    N/A
+                    —
                 @endif
             </p>
         </div>
         <div>
             <p class="text-xs font-medium text-slate-500">Gender</p>
-            <p class="text-slate-900">{{ ucfirst($patient->gender ?? 'N/A') }}</p>
+            <p class="text-slate-900">{{ $patient->gender ? ucfirst($patient->gender) : '—' }}</p>
         </div>
 
         {{-- Contact --}}
@@ -64,12 +63,14 @@
                 data-patient-name="{{ $patient->name ?? 'Unknown' }}"
                 data-patient-phone="{{ $patient->phone ?? '—' }}"
                 data-patient-email="{{ $patient->email ?? '—' }}"
-                data-patient-gender="{{ ucfirst($patient->gender ?? '—') }}"
+                data-patient-gender="{{ $patient->gender ? ucfirst($patient->gender) : '—' }}"
                 data-patient-blood-group="{{ $patient->blood_group ?? '—' }}"
-                data-patient-dob="{{ $patient->date_of_birth ? \Carbon\Carbon::parse($patient->date_of_birth)->format('M d, Y') : '—' }}"
+                data-patient-dob="{{ $patient->dob?->format('M d, Y') ?? '—' }}"
                 data-patient-address="{{ $patient->address ?? '—' }}"
-                data-patient-emergency="{{ $patient->emergency_contact ?? '—' }}"
-                data-patient-visits="0">
+                data-patient-emergency="{{ $patient->emergency_contact_name ? $patient->emergency_contact_name . ' · ' . $patient->emergency_contact : '—' }}"
+                data-patient-visits="{{ $patient->visits_count ?? 0 }}"
+                data-patient-history="{{ base64_encode(json_encode(($patientHistory[$patient->id] ?? []))) }}"
+                data-patient-timeline="{{ base64_encode(json_encode(($patientTimeline[$patient->id] ?? []))) }}">
             View Full Profile
         </button>
     </div>

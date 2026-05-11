@@ -719,6 +719,109 @@
         </section>
         @endif
 
+        @if(($activeSection ?? 'overview') === 'schedule')
+        <section id="schedule" class="space-y-6">
+            <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Schedule</p>
+                        <h3 class="text-2xl font-bold text-slate-900">Weekly availability</h3>
+                        <p class="mt-1 text-sm text-slate-500">A quick view of your configured availability slots.</p>
+                    </div>
+                    <a href="{{ route('doctor.profile') }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Edit availability</a>
+                </div>
+
+                <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                    @foreach($weeklyAvailability as $day)
+                        <div class="rounded-3xl border border-slate-200 bg-slate-50/90 p-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="font-semibold text-slate-900">{{ $day['day'] }}</p>
+                                <span class="rounded-full {{ $day['available'] ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }} px-3 py-1 text-xs font-semibold">
+                                    {{ $day['available'] ? 'Available' : 'Blocked' }}
+                                </span>
+                            </div>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                @foreach($day['slots'] as $slot)
+                                    <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">{{ $slot }}</span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+                <div class="flex items-center justify-between gap-3 mb-6">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Upcoming</p>
+                        <h3 class="text-2xl font-bold text-slate-900">Next appointments</h3>
+                    </div>
+                    <a href="{{ route('doctor.appointments') }}" class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Go to Appointments</a>
+                </div>
+                <div class="space-y-3">
+                    @forelse($upcomingAppointments as $appointment)
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50/90 p-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="font-semibold text-slate-900">{{ $appointment->patient_name }}</p>
+                                    <p class="text-sm text-slate-500">{{ $appointment->appointment_date->format('M d, Y') }} · {{ $appointment->time_slot }} · {{ $appointment->department->name ?? 'General' }}</p>
+                                </div>
+                                <span class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold {{ $statusStyles[$appointment->status] ?? 'bg-slate-100 text-slate-600 border-slate-200' }}">{{ $statusLabels[$appointment->status] ?? ucfirst($appointment->status) }}</span>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-slate-500">No upcoming appointments scheduled.</p>
+                    @endforelse
+                </div>
+            </div>
+        </section>
+        @endif
+
+        @if(($activeSection ?? 'overview') === 'notifications')
+        <section id="notifications" class="space-y-6">
+            <div class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Notifications</p>
+                        <h3 class="text-2xl font-bold text-slate-900">Clinical alerts</h3>
+                        <p class="mt-1 text-sm text-slate-500">Appointment and system updates stay here until marked as read.</p>
+                    </div>
+                    <form method="POST" action="{{ route('doctor.notifications.mark-read') }}">
+                        @csrf
+                        <button type="submit" class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Mark all as read</button>
+                    </form>
+                </div>
+
+                <div class="mt-6 space-y-3">
+                    @forelse($notifications as $notification)
+                        @php
+                            $type = strtolower($notification->type ?? 'system');
+                            $notificationTone = $notificationStyles[$type] ?? $notificationStyles['system'];
+                        @endphp
+                        <div class="rounded-3xl border bg-linear-to-br {{ $notificationTone }} p-4 shadow-sm {{ $notification->is_read ? 'opacity-70' : '' }}">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="font-semibold text-slate-900">{{ $notification->title }}</p>
+                                    <p class="text-sm text-slate-600">{{ $notification->message }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-semibold text-slate-500">{{ $notification->created_at->diffForHumans() }}</span>
+                                    @if(! $notification->is_read)
+                                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> Unread
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-slate-500">No notifications yet.</p>
+                    @endforelse
+                </div>
+            </div>
+        </section>
+        @endif
+
         @if(($activeSection ?? 'overview') === 'labs')
         {{-- Labs & EMR Section --}}
         <section id="labs" class="space-y-6">
@@ -921,8 +1024,10 @@
         class MedicineAutocomplete {
             constructor() {
                 this.allMedicines = window.initialMedicines;
-                this.isLoaded = false;
+                this.isLoaded = Array.isArray(this.allMedicines) && this.allMedicines.length > 0;
                 this.searchTimeout = null;
+                // Bind immediately so selections show even before API finishes.
+                this.initializeSearch();
                 this.init();
             }
 
@@ -985,7 +1090,7 @@
             }
 
             filterAndShow(searchTerm, dropdown, input) {
-                if (!this.isLoaded || this.allMedicines.length === 0) {
+                if (!Array.isArray(this.allMedicines) || this.allMedicines.length === 0) {
                     dropdown.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500 animate-pulse">Loading medicines...</div>';
                     return;
                 }

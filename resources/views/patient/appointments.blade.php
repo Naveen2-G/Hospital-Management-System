@@ -124,6 +124,7 @@
                     <th>Department</th>
                     <th>Type</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -135,6 +136,18 @@
                         <td>{{ $apt->department?->name ?? '—' }}</td>
                         <td class="capitalize">{{ $apt->type }}</td>
                         <td><span class="patient-badge badge-{{ $apt->status }}">{{ ucfirst($apt->status) }}</span></td>
+                        <td>
+                            @if(in_array($apt->status, ['pending','confirmed'], true))
+                                <form method="POST" action="{{ route('patient.appointments.cancel', $apt) }}" onsubmit="return confirm('Cancel this appointment?');">
+                                    @csrf
+                                    <button type="submit" class="patient-pill" style="background:#fff;border-color:#fecaca;color:#e11d48;">
+                                        Cancel
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-xs font-semibold text-slate-400">—</span>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>

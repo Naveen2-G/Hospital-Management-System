@@ -28,44 +28,36 @@
             <div class="flex items-center gap-2">
                 {{-- Notification Bell --}}
                 @php
-                    $notifItems = collect();
-                    if(isset($appointments)) foreach($appointments->take(3) as $apt) {
-                        $notifItems->push(['color'=>'blue','msg'=>'Appointment with Dr. '.($apt->doctor?->name ?? 'doctor').' on '.optional($apt->appointment_date)->format('d M'),'time'=>optional($apt->created_at)->diffForHumans()]);
-                    }
-                    if(isset($labOrders)) foreach($labOrders->whereNotNull('report_file')->take(2) as $lo) {
-                        $notifItems->push(['color'=>'green','msg'=>'Lab report ready: '.($lo->labTest?->name ?? 'Lab test'),'time'=>optional($lo->ordered_at)->diffForHumans()]);
-                    }
-                    if(isset($invoices)) foreach($invoices->where('status','paid')->take(1) as $inv) {
-                        $notifItems->push(['color'=>'amber','msg'=>'Payment confirmed for invoice '.($inv->invoice_number ?? '#'.$inv->id),'time'=>optional($inv->updated_at)->diffForHumans()]);
-                    }
-                    if(isset($prescriptions)) foreach($prescriptions->take(1) as $rx) {
-                        $notifItems->push(['color'=>'violet','msg'=>'Prescription issued by Dr. '.($rx->doctor?->name ?? 'doctor'),'time'=>optional($rx->created_at)->diffForHumans()]);
-                    }
+                    $notifItems = isset($notifications) ? collect($notifications) : collect();
+                    $unreadCount = $notifItems->where('is_read', false)->count();
                 @endphp
                 <div class="notif-bell-wrap" id="notif-bell-wrap">
                     <button class="notif-bell-btn" id="notif-bell-btn" aria-label="Notifications">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                        @if($notifItems->count() > 0)
-                            <span class="notif-badge">{{ $notifItems->count() }}</span>
+                        @if($unreadCount > 0)
+                            <span class="notif-badge">{{ $unreadCount }}</span>
                         @endif
                     </button>
                     <div class="notif-dropdown" id="notif-dropdown">
                         <div class="notif-dropdown-header">
                             <h3>Notifications</h3>
-                            <span class="notif-mark-read" id="notif-mark-read">Mark all read</span>
+                            <form method="POST" action="{{ route('patient.notifications.mark-read') }}">
+                                @csrf
+                                <button type="submit" class="notif-mark-read" id="notif-mark-read">Mark all read</button>
+                            </form>
                         </div>
                         <div class="notif-list">
                             @if($notifItems->isEmpty())
                                 <div style="padding:1.5rem;text-align:center;color:#94a3b8;font-size:0.82rem;font-weight:600">No notifications yet.</div>
                             @else
                                 @foreach($notifItems as $n)
-                                <div class="notif-item unread">
-                                    <div class="notif-icon {{ $n['color'] }}">
+                                <div class="notif-item {{ $n->is_read ? '' : 'unread' }}">
+                                    <div class="notif-icon {{ $n->is_read ? 'slate' : 'blue' }}">
                                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
                                     <div class="notif-text">
-                                        <p>{{ $n['msg'] }}</p>
-                                        <span>{{ $n['time'] }}</span>
+                                        <p>{{ $n->title }}</p>
+                                        <span>{{ $n->created_at?->diffForHumans() }}</span>
                                     </div>
                                     <div class="notif-dot"></div>
                                 </div>
@@ -75,14 +67,6 @@
                     </div>
                 </div>
 
-                <a href="{{ route('patient.profile') }}" class="patient-pill">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
-                    Profile
-                </a>
-                <a href="{{ route('patient.change-password.edit') }}" class="patient-pill">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
-                    Password
-                </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="patient-pill patient-logout-btn">
@@ -142,9 +126,8 @@
         const markRead = document.getElementById('notif-mark-read');
         if (markRead) {
             markRead.addEventListener('click', () => {
+                // UI feedback only. Persistence handled by server action.
                 document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
-                const badge = document.querySelector('.notif-badge');
-                if (badge) badge.remove();
             });
         }
     </script>

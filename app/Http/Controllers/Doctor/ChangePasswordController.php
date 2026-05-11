@@ -48,6 +48,6 @@ class ChangePasswordController extends Controller
             'password' => Hash::make($validated['new_password']),
         ]);
 
-        return redirect()->route('doctor.dashboard')->with('success', 'Password updated successfully!');
+        return back()->with('success', 'Password updated successfully!');
     }
 }
