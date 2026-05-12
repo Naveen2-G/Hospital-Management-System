@@ -26,6 +26,11 @@ class HealthPackageBooking extends Model
         'payment_status',
         'booking_status',
         'transaction_id',
+        'report_file',
+        'report_uploaded_at',
+        'admin_remarks',
+        'patient_id',
+        'package_id',
     ];
 
     protected function casts(): array

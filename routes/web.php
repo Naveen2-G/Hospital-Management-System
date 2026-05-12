@@ -35,6 +35,8 @@ Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 Route::middleware('auth')->get('/lab-orders/{labOrder}/report', [LabReportController::class, 'show'])->name('lab-orders.report');
+Route::middleware('auth')->get('/lab-bookings/{booking}/report', [LabReportController::class, 'labBookingReport'])->name('lab-bookings.report.patient');
+Route::middleware('auth')->get('/health-package-bookings/{booking}/report', [LabReportController::class, 'healthPackageBookingReport'])->name('health-package-bookings.report');
 
 // ─── Checkout Routes ──────────────────────────────────────────
 use App\Http\Controllers\CheckoutController;
@@ -257,12 +259,16 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Lab
     Route::resource('lab-tests', \App\Http\Controllers\Admin\LabController::class);
     Route::put('lab-orders/{labOrder}', [\App\Http\Controllers\Admin\LabController::class, 'updateOrder'])->name('lab-orders.update');
-    Route::resource('lab-bookings', \App\Http\Controllers\Admin\LabBookingController::class);
+    Route::get('lab-bookings/{booking}/report', [\App\Http\Controllers\Admin\ReportController::class, 'labBookingReport'])->name('lab-bookings.report');
+    Route::resource('lab-bookings', \App\Http\Controllers\Admin\LabBookingController::class)->parameters(['lab-bookings' => 'booking']);
+    Route::put('lab-bookings/{booking}/report', [\App\Http\Controllers\Admin\LabBookingController::class, 'updateReport'])->name('lab-bookings.report.update');
 
     // Health Packages
+    Route::get('health-package-bookings/{booking}/report', [\App\Http\Controllers\Admin\ReportController::class, 'healthPackageBookingReport'])->name('health-package-bookings.report');
     Route::resource('health-package-bookings', \App\Http\Controllers\Admin\HealthPackageBookingController::class)
         ->parameters(['health-package-bookings' => 'booking'])
         ->only(['index', 'show', 'update', 'destroy']);
+    Route::put('health-package-bookings/{booking}/report', [\App\Http\Controllers\Admin\HealthPackageBookingController::class, 'updateReport'])->name('health-package-bookings.report.update');
 
     // Billing
     Route::resource('billing', \App\Http\Controllers\Admin\BillingController::class);
@@ -295,6 +301,8 @@ Route::prefix('patient')->middleware(['auth', 'patient'])->name('patient.')->gro
     Route::get('/reports', [\App\Http\Controllers\Patient\PortalController::class, 'reports'])->name('reports');
     Route::get('/prescriptions', [\App\Http\Controllers\Patient\PortalController::class, 'prescriptions'])->name('prescriptions');
     Route::get('/invoices', [\App\Http\Controllers\Patient\PortalController::class, 'invoices'])->name('invoices');
+    Route::get('/invoices/{invoice}/download', [\App\Http\Controllers\Patient\PortalController::class, 'printInvoice'])->name('invoices.download');
+    Route::get('/invoices/{invoice}/print', [\App\Http\Controllers\Patient\PortalController::class, 'printInvoice'])->name('invoices.print');
     Route::get('/profile', [\App\Http\Controllers\Patient\PortalController::class, 'profile'])->name('profile');
 
     Route::post('/appointments', [\App\Http\Controllers\Patient\AppointmentController::class, 'store'])->name('appointments.store');

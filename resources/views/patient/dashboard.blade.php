@@ -18,7 +18,7 @@
 
             {{-- Mobile / small screens avatar --}}
             <div class="mt-5 flex items-center gap-3 md:hidden">
-                <div class="flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-lg shadow-emerald-950/25">
+                <div class="flex h-50 w-50 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-lg shadow-emerald-950/25">
                     @if(!empty($patient->avatar))
                         <img
                             src="{{ Storage::url($patient->avatar) }}"
@@ -214,20 +214,36 @@
                 <div class="download-item">
                     <div class="download-item-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M5 3a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5z"/></svg></div>
                     <div class="download-item-info"><p>{{ $lo->labTest?->name ?? 'Lab Report' }}</p><span>{{ optional($lo->ordered_at)->format('d M Y') }}</span></div>
-                    <a href="{{ route('lab-orders.report', $lo) }}" target="_blank" class="download-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>Download</a>
+                    <a href="{{ route('lab-orders.report', $lo) }}" target="_blank" class="download-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>Lab report</a>
+                </div>
+                @endforeach
+                @foreach($labBookings->whereNotNull('report_file')->take(3) as $lb)
+                <div class="download-item">
+                    <div class="download-item-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M5 3a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5z"/></svg></div>
+                    <div class="download-item-info"><p>{{ $lb->test_name ?? 'Lab Booking Report' }}</p><span>{{ optional($lb->created_at)->format('d M Y') }}</span></div>
+                    <a href="{{ route('lab-bookings.report.patient', ['booking' => $lb]) }}" target="_blank" class="download-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>Lab booking report</a>
+                </div>
+                @endforeach
+                @foreach($healthPackageBookings->whereNotNull('report_file')->take(3) as $hp)
+                <div class="download-item">
+                    <div class="download-item-icon" style="background:linear-gradient(135deg,#10b981,#059669)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M5 3a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5z"/></svg></div>
+                    <div class="download-item-info"><p>{{ $hp->package_name ?? 'Health Package Report' }}</p><span>{{ optional($hp->created_at)->format('d M Y') }}</span></div>
+                    <a href="{{ route('health-package-bookings.report', $hp) }}" target="_blank" class="download-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>Health package report</a>
                 </div>
                 @endforeach
                 @foreach($invoices->take(2) as $inv)
                 <div class="download-item">
                     <div class="download-item-icon" style="background:linear-gradient(135deg,#f43f5e,#e11d48)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M5 3a2 2 0 00-2 2v16a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5z"/></svg></div>
                     <div class="download-item-info"><p>Invoice {{ $inv->invoice_number ?? '#'.$inv->id }}</p><span>₹{{ number_format((float)$inv->total_amount,2) }} · {{ ucfirst($inv->status) }}</span></div>
-                    <button onclick="window.print()" class="download-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z"/></svg>Print</button>
+                    <a href="{{ route('patient.invoices.download', $inv) }}" class="download-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>Download</a>
                 </div>
                 @endforeach
-                @if($labOrders->whereNotNull('report_file')->isEmpty() && $invoices->isEmpty())
+                @if($labOrders->whereNotNull('report_file')->isEmpty() && $labBookings->whereNotNull('report_file')->isEmpty() && $healthPackageBookings->whereNotNull('report_file')->isEmpty() && $invoices->isEmpty())
                 <div class="patient-empty">No files available for download yet.</div>
                 @endif
             </div>
+
+            
         </div>
     </div>
 

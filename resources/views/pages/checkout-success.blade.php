@@ -18,7 +18,7 @@
             </div>
             
             <h2 class="text-3xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
-            <p class="text-gray-500 mb-8 leading-relaxed">Your health package booking has been confirmed. A receipt and further instructions have been sent to your email.</p>
+            <p class="text-gray-500 mb-8 leading-relaxed">Your health package booking has been confirmed. A receipt and further updates will be shared on WhatsApp.</p>
             
             <div class="bg-gray-50 rounded-2xl p-6 text-left mb-8 border border-gray-100">
                 <div class="flex items-center gap-3 text-emerald-600 font-medium mb-2">
@@ -30,7 +30,7 @@
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ route('health-packages') }}" class="px-6 py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all text-center">Back to Packages</a>
-                <a href="/" class="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 shadow-lg shadow-primary-500/20 transition-all hover:-translate-y-0.5 text-center">Go to Home</a>
+                <a href="/" class="px-6 py-3 bg-linear-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 shadow-lg shadow-primary-500/20 transition-all hover:-translate-y-0.5 text-center">Go to Home</a>
             </div>
         </div>
 

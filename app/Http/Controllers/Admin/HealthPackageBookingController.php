@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\HealthPackageBooking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class HealthPackageBookingController extends Controller
 {
@@ -57,11 +58,53 @@ class HealthPackageBookingController extends Controller
         $data = $request->validate([
             'payment_status' => 'required|in:pending,paid,failed',
             'booking_status' => 'required|in:pending,confirmed,completed,cancelled',
+            'admin_remarks' => 'nullable|string',
         ]);
 
         $booking->update($data);
 
+        if ($booking->user_id) {
+            \App\Models\Notification::create([
+                'user_id' => $booking->user_id,
+                'title' => 'Booking updated',
+                'message' => "Your package booking #HP-{$booking->id} status updated to " . ucfirst($booking->booking_status),
+                'type' => 'booking_status',
+            ]);
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'booking' => $booking]);
+        }
+
         return back()->with('success', 'Health package booking updated successfully.');
+    }
+
+    public function updateReport(Request $request, HealthPackageBooking $booking)
+    {
+        $request->validate([
+            'report_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ]);
+
+        if ($booking->report_file && Storage::disk('public')->exists($booking->report_file)) {
+            Storage::disk('public')->delete($booking->report_file);
+        }
+
+        $path = $request->file('report_file')->store('booking-reports/health-packages', 'public');
+        $booking->update([
+            'report_file' => $path,
+            'report_uploaded_at' => now(),
+        ]);
+
+        if ($booking->user_id) {
+            \App\Models\Notification::create([
+                'user_id' => $booking->user_id,
+                'title' => 'Report uploaded',
+                'message' => "Your health package booking #HP-{$booking->id} report is now available.",
+                'type' => 'report',
+            ]);
+        }
+
+        return back()->with('success', 'Health package report uploaded successfully.');
     }
 
     public function destroy(HealthPackageBooking $booking)

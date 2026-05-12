@@ -15,18 +15,28 @@
                 </div>
             </div>
             <div class="admin-card">
-                <h2 class="text-base font-semibold text-gray-900 mb-4">Department Management</h2>
-                <div class="space-y-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-semibold text-gray-900">Department Management</h2>
+                    <span class="badge badge-info">{{ $departments->count() }} Total</span>
+                </div>
+                <div class="space-y-1">
+                    <div class="grid grid-cols-2 px-2 py-2 border-b border-gray-100 bg-gray-50/50 rounded-t-lg">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Department Name</span>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Status</span>
+                    </div>
                     @foreach($departments as $dept)
-                    <div class="flex items-center justify-between py-2 {{ !$loop->last ? 'border-b border-gray-100' : '' }}">
-                        <span class="text-sm text-gray-800">{{ $dept->name }}</span>
-                        <select name="dept_status[{{ $dept->id }}]" class="form-input w-auto text-sm py-1">
-                            <option value="active" {{ $dept->status==='active'?'selected':'' }}>Active</option>
-                            <option value="inactive" {{ $dept->status==='inactive'?'selected':'' }}>Inactive</option>
-                        </select>
+                    <div class="grid grid-cols-2 items-center px-2 py-3 {{ !$loop->last ? 'border-b border-gray-100' : '' }} hover:bg-gray-50/50 transition-colors">
+                        <span class="text-sm font-medium text-gray-800">{{ $dept->name }}</span>
+                        <div class="flex justify-end">
+                            <select name="dept_status[{{ $dept->id }}]" class="form-input text-sm py-2 w-32 cursor-pointer focus:ring-2 focus:ring-blue-500/20">
+                                <option value="active" {{ $dept->status==='active'?'selected':'' }}>Active</option>
+                                <option value="inactive" {{ $dept->status==='inactive'?'selected':'' }}>Inactive</option>
+                            </select>
+                        </div>
                     </div>
                     @endforeach
                 </div>
+                <p class="text-[11px] text-gray-400 mt-4 italic">* Inactive departments will be hidden from public booking forms.</p>
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Save Settings</button>

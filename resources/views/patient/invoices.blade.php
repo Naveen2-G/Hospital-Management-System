@@ -38,11 +38,14 @@
                             <td>₹{{ number_format((float) $inv->due_amount, 2) }}</td>
                             <td><span class="patient-badge badge-{{ $inv->status }}">{{ ucfirst($inv->status) }}</span></td>
                             <td class="text-right">
-                                @if((float) $inv->due_amount > 0)
-                                    <a href="{{ route('patient.invoices.payment.create', $inv) }}" class="patient-pill patient-pill-dark">Pay now</a>
-                                @else
-                                    <span class="text-sm font-semibold text-emerald-700">Paid</span>
-                                @endif
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('patient.invoices.download', $inv) }}" class="patient-pill">Download</a>
+                                    @if((float) $inv->due_amount > 0)
+                                        <a href="{{ route('patient.invoices.payment.create', $inv) }}" class="patient-pill patient-pill-dark">Pay now</a>
+                                    @else
+                                        <span class="text-sm font-semibold text-emerald-700">Paid</span>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach

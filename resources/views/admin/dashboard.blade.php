@@ -232,6 +232,48 @@
                 @endif
             </div>
 
+            {{-- Lab Bookings --}}
+            <div class="admin-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-semibold text-gray-900">Lab Bookings</h2>
+                    <a href="{{ route('admin.lab-bookings.index') }}" class="text-sm text-primary-600 font-medium hover:underline">View all →</a>
+                </div>
+
+                @if($recentLabBookings->isEmpty())
+                    <p class="text-sm text-gray-400">No lab bookings yet.</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach($recentLabBookings as $booking)
+                            <div class="flex items-start justify-between gap-3 border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">{{ $booking->patient_name }}</p>
+                                    <p class="text-xs text-gray-400">{{ $booking->test_name }} · {{ $booking->preferred_date?->format('M d, Y') }}</p>
+                                    @if($booking->report_file)
+                                        <a href="{{ route('admin.lab-bookings.report', $booking) }}" target="_blank" class="mt-1 inline-block text-xs font-medium text-sky-700 hover:text-sky-800">View report</a>
+                                    @endif
+                                </div>
+                                <div class="flex flex-col items-end gap-2">
+                                    <span class="badge {{ $booking->booking_status === 'confirmed' ? 'badge-info' : ($booking->booking_status === 'completed' ? 'badge-success' : ($booking->booking_status === 'cancelled' ? 'badge-danger' : 'badge-warning')) }}">{{ ucfirst($booking->booking_status) }}</span>
+                                    <button
+                                        type="button"
+                                        data-upload-url="{{ route('admin.lab-bookings.report.update', $booking) }}"
+                                        data-booking-type="Lab Booking"
+                                        data-booking-title="{{ $booking->patient_name }}"
+                                        data-booking-subtitle="{{ $booking->test_name }} · {{ $booking->preferred_date?->format('M d, Y') }}"
+                                        data-current-report-url="{{ $booking->report_file ? route('admin.lab-bookings.report', $booking) : '' }}"
+                                        data-current-report-name="{{ $booking->report_file ? basename($booking->report_file) : '' }}"
+                                        onclick="openReportUploadModal(this)"
+                                        class="text-xs font-semibold text-primary-600 hover:text-primary-700"
+                                    >
+                                        Upload report
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
             {{-- Health Package Bookings --}}
             <div class="admin-card">
                 <div class="flex items-center justify-between mb-4">
@@ -263,8 +305,26 @@
                                 <div>
                                     <p class="text-sm font-medium text-gray-800">{{ $booking->patient_name }}</p>
                                     <p class="text-xs text-gray-400">{{ $booking->package_name }} · {{ $booking->preferred_date?->format('M d, Y') }}</p>
+                                    @if($booking->report_file)
+                                        <a href="{{ route('admin.health-package-bookings.report', $booking) }}" target="_blank" class="mt-1 inline-block text-xs font-medium text-sky-700 hover:text-sky-800">View report</a>
+                                    @endif
                                 </div>
-                                <span class="badge {{ $booking->booking_status === 'confirmed' ? 'badge-info' : ($booking->booking_status === 'completed' ? 'badge-success' : ($booking->booking_status === 'cancelled' ? 'badge-danger' : 'badge-warning')) }}">{{ ucfirst($booking->booking_status) }}</span>
+                                <div class="flex flex-col items-end gap-2">
+                                    <span class="badge {{ $booking->booking_status === 'confirmed' ? 'badge-info' : ($booking->booking_status === 'completed' ? 'badge-success' : ($booking->booking_status === 'cancelled' ? 'badge-danger' : 'badge-warning')) }}">{{ ucfirst($booking->booking_status) }}</span>
+                                    <button
+                                        type="button"
+                                        data-upload-url="{{ route('admin.health-package-bookings.report.update', $booking) }}"
+                                        data-booking-type="Health Package Booking"
+                                        data-booking-title="{{ $booking->patient_name }}"
+                                        data-booking-subtitle="{{ $booking->package_name }} · {{ $booking->preferred_date?->format('M d, Y') }}"
+                                        data-current-report-url="{{ $booking->report_file ? route('admin.health-package-bookings.report', $booking) : '' }}"
+                                        data-current-report-name="{{ $booking->report_file ? basename($booking->report_file) : '' }}"
+                                        onclick="openReportUploadModal(this)"
+                                        class="text-xs font-semibold text-primary-600 hover:text-primary-700"
+                                    >
+                                        Upload report
+                                    </button>
+                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -296,4 +356,79 @@
             </div>
         </div>
     </div>
+
+    <div id="reportUploadModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeReportUploadModal()"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 id="reportModalTitle" class="text-xl font-bold text-gray-900">Upload Report</h2>
+                    <button type="button" onclick="closeReportUploadModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                <form id="reportUploadForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="space-y-6">
+                        <div class="p-4 bg-gray-50 rounded-xl space-y-1">
+                            <p id="reportBookingType" class="text-xs font-bold text-gray-400 uppercase tracking-wider"></p>
+                            <p id="reportBookingTitle" class="text-sm font-semibold text-gray-900"></p>
+                            <p id="reportBookingSubtitle" class="text-xs text-gray-500"></p>
+                        </div>
+
+                        <div id="currentReportWrap" class="hidden rounded-xl border border-sky-100 bg-sky-50 p-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-sky-700 mb-2">Current report</p>
+                            <a id="currentReportLink" href="#" target="_blank" class="text-sm font-semibold text-sky-700 hover:text-sky-800"></a>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Report File</label>
+                            <input type="file" name="report_file" class="form-input" accept=".pdf,.jpg,.jpeg,.png" required>
+                            <p class="mt-1 text-xs text-gray-400">PDF, JPG, JPEG, or PNG up to 5MB.</p>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3">
+                            <button type="button" onclick="closeReportUploadModal()" class="btn btn-secondary">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Upload Report</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openReportUploadModal(button) {
+            const form = document.getElementById('reportUploadForm');
+            const currentReportWrap = document.getElementById('currentReportWrap');
+            const currentReportLink = document.getElementById('currentReportLink');
+
+            form.action = button.dataset.uploadUrl;
+            document.getElementById('reportModalTitle').textContent = `Upload ${button.dataset.bookingType}`;
+            document.getElementById('reportBookingType').textContent = button.dataset.bookingType || 'Booking';
+            document.getElementById('reportBookingTitle').textContent = button.dataset.bookingTitle || '';
+            document.getElementById('reportBookingSubtitle').textContent = button.dataset.bookingSubtitle || '';
+
+            if (button.dataset.currentReportUrl) {
+                currentReportLink.href = button.dataset.currentReportUrl;
+                currentReportLink.textContent = button.dataset.currentReportName || 'View current report';
+                currentReportWrap.classList.remove('hidden');
+            } else {
+                currentReportWrap.classList.add('hidden');
+                currentReportLink.removeAttribute('href');
+                currentReportLink.textContent = '';
+            }
+
+            document.getElementById('reportUploadModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReportUploadModal() {
+            document.getElementById('reportUploadModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
 @endsection

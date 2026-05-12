@@ -85,7 +85,7 @@
 
             <!-- Footer Message -->
             <div class="bg-gray-50 p-6 text-center border-t border-gray-100">
-                <p class="text-sm text-gray-500">A confirmation email has been sent to <span class="font-semibold text-gray-700">{{ $booking->email }}</span></p>
+                <p class="text-sm text-gray-500">A confirmation message and report updates will be shared on WhatsApp at <span class="font-semibold text-gray-700">{{ $booking->phone }}</span></p>
             </div>
         </div>
     </div>

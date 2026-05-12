@@ -41,7 +41,7 @@
                         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
-                        <input id="admin-search" type="text" name="q" value="{{ request('q') }}" placeholder="Search... (Ctrl+K)" class="admin-search">
+                        <input id="admin-search" type="text" name="q" value="{{ request('q') }}" placeholder="Search... (Ctrl+K)" class="admin-search input-with-icon">
                     </form>
                 </div>
 
@@ -202,7 +202,7 @@
     <div id="toast-container" class="toast-container"></div>
 
     {{-- Change Password Modal --}}
-    <div id="change-password-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center backdrop-blur-sm" data-route="{{ route('admin.change-password.update') }}" style="display: none;">
+    <div id="change-password-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm" data-route="{{ route('admin.change-password.update') }}">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 animate-fade-in">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-slate-900">Change Password</h2>

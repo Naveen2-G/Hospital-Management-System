@@ -14,8 +14,9 @@
             </svg>
             <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ $title }}</h3>
             <p class="text-sm text-gray-400 max-w-md mx-auto">This module is being built. Full CRUD functionality will be available soon.</p>
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary btn-sm mt-6 inline-flex">
-                ← Back to Dashboard
+            <a href="{{ route('admin.dashboard') }}" class="btn-back mt-8">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+                Back to Dashboard
             </a>
         </div>
     </div>

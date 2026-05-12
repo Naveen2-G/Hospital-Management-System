@@ -334,7 +334,7 @@
 
     <!-- ── Print Toolbar (hidden in print) ──────── -->
     <div class="print-toolbar no-print">
-        <a href="{{ route('admin.billing.show', $invoice) }}">
+        <a href="{{ $backUrl ?? route('admin.billing.show', $invoice) }}">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             Back to Invoice
         </a>

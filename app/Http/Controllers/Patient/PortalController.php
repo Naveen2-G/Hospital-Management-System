@@ -7,11 +7,15 @@ use App\Models\Appointment;
 use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Invoice;
+use App\Models\HealthPackageBooking;
+use App\Models\LabBooking;
 use App\Models\LabOrder;
 use App\Models\Notification;
 use App\Models\Prescription;
+use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PortalController extends Controller
 {
@@ -24,7 +28,8 @@ class PortalController extends Controller
 
         if (! $patient) {
             // In case the patient profile was not created for an older user record.
-            $patient = $user->patient()->create([
+            $patient = Patient::create([
+                'user_id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
@@ -49,6 +54,18 @@ class PortalController extends Controller
             ->with(['doctor', 'labTest'])
             ->where('patient_id', $patient->id)
             ->orderByDesc('ordered_at')
+            ->limit(15)
+            ->get();
+
+        $labBookings = LabBooking::query()
+            ->where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->limit(15)
+            ->get();
+
+        $healthPackageBookings = HealthPackageBooking::query()
+            ->where('user_id', $user->id)
+            ->orderByDesc('created_at')
             ->limit(15)
             ->get();
 
@@ -82,6 +99,8 @@ class PortalController extends Controller
             'appointments',
             'prescriptions',
             'labOrders',
+            'labBookings',
+            'healthPackageBookings',
             'notifications',
             'invoices',
             'departments',
@@ -112,6 +131,33 @@ class PortalController extends Controller
     public function invoices(Request $request)
     {
         return view('patient.invoices', $this->portalData());
+    }
+
+    public function printInvoice(\Illuminate\Http\Request $request, \App\Models\Invoice $invoice)
+    {
+        $data = $this->portalData();
+        $patient = $data['patient'];
+
+        $invoice->load(['patient', 'items', 'payments']);
+        abort_unless($invoice->patient_id === $patient->id, 403);
+
+        $hospital = [
+            'name' => \App\Models\Setting::get('hospital_name', 'HMS Hospital'),
+            'address' => \App\Models\Setting::get('hospital_address', '123 Healthcare Avenue, Mumbai 400001'),
+            'phone' => \App\Models\Setting::get('hospital_phone', '+91-22-12345678'),
+            'email' => \App\Models\Setting::get('hospital_email', 'info@hms-hospital.com'),
+        ];
+        $backUrl = route('patient.invoices');
+
+        if ($request->query('download')) {
+            $pdf = Pdf::loadView('admin.billing.print', compact('invoice', 'hospital'))
+                ->setPaper('a4', 'portrait');
+
+            $filename = 'invoice-' . ($invoice->invoice_number ?? $invoice->id) . '.pdf';
+            return $pdf->download($filename);
+        }
+
+        return view('admin.billing.print', compact('invoice', 'hospital', 'backUrl'));
     }
 
     public function profile(Request $request)

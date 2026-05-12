@@ -7,6 +7,7 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Appointment;
 use App\Models\Admission;
+use App\Models\LabBooking;
 use App\Models\HealthPackageBooking;
 use App\Models\Invoice;
 use App\Models\Room;
@@ -90,6 +91,10 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        $recentLabBookings = LabBooking::orderByDesc('created_at')
+            ->limit(5)
+            ->get();
+
         return view('admin.dashboard', compact(
             'stats',
             'revenueChart',
@@ -99,7 +104,8 @@ class DashboardController extends Controller
             'roomStats',
             'lowStockMedicines',
             'healthPackageStats',
-            'recentHealthPackageBookings'
+            'recentHealthPackageBookings',
+            'recentLabBookings'
         ));
     }
 }

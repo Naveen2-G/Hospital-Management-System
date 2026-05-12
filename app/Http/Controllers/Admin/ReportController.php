@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\HealthPackageBooking;
+use App\Models\LabBooking;
 use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Appointment;
@@ -9,9 +11,48 @@ use App\Models\Admission;
 use App\Models\Medicine;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
+    public function labBookingReport(LabBooking $booking)
+    {
+        if (! $booking->report_file) {
+            abort(404, 'Report file not found.');
+        }
+
+        if (! Storage::disk('public')->exists($booking->report_file)) {
+            abort(404, 'Report file not found.');
+        }
+
+        $filePath = Storage::disk('public')->path($booking->report_file);
+        $mimeType = @mime_content_type($filePath) ?: 'application/octet-stream';
+
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . basename($booking->report_file) . '"',
+        ]);
+    }
+
+    public function healthPackageBookingReport(HealthPackageBooking $booking)
+    {
+        if (! $booking->report_file) {
+            abort(404, 'Report file not found.');
+        }
+
+        if (! Storage::disk('public')->exists($booking->report_file)) {
+            abort(404, 'Report file not found.');
+        }
+
+        $filePath = Storage::disk('public')->path($booking->report_file);
+        $mimeType = @mime_content_type($filePath) ?: 'application/octet-stream';
+
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . basename($booking->report_file) . '"',
+        ]);
+    }
+
     public function index(Request $request)
     {
         $period = $request->get('period', 'month');

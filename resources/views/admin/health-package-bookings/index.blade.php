@@ -3,10 +3,13 @@
 @section('content')
     <div class="flex items-center justify-between mb-6">
         <div>
+            <a href="{{ route('admin.dashboard') }}" class="btn-back mb-3">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+                Back to Dashboard
+            </a>
             <h1 class="text-2xl font-bold text-gray-900">Health Package Bookings</h1>
             <p class="text-sm text-gray-500 mt-1">Track preventive check-up bookings submitted by patients.</p>
         </div>
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
@@ -52,7 +55,7 @@
         <form method="GET" class="flex flex-wrap gap-3">
             <div class="relative flex-1 min-w-55">
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by patient, phone, email, or package..." class="form-input pl-10">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by patient, phone, email, or package..." class="form-input pl-10 input-with-icon">
             </div>
             <select name="payment_status" class="form-input w-auto" onchange="this.form.submit()">
                 <option value="">All Payment Status</option>
@@ -116,12 +119,26 @@
                                     <div class="flex items-center justify-end gap-1">
                                         <button
                                             type="button"
+                                            data-upload-url="{{ route('admin.health-package-bookings.report.update', $booking) }}"
+                                            data-booking-title="{{ $booking->patient_name }}"
+                                            data-booking-subtitle="{{ $booking->package_name }} · {{ $booking->preferred_date?->format('M d, Y') }}"
+                                            data-current-report-url="{{ $booking->report_file ? route('admin.health-package-bookings.report', $booking) : '' }}"
+                                            data-current-report-name="{{ $booking->report_file ? basename($booking->report_file) : '' }}"
+                                            onclick="openReportUploadModal(this)"
+                                            class="p-1.5 rounded-lg hover:bg-sky-50 text-gray-400 hover:text-sky-600 transition-colors"
+                                            title="Upload report"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 0-3 3m3-3 3 3M4.5 12a7.5 7.5 0 1 1 15 0 7.5 7.5 0 0 1-15 0Z"/></svg>
+                                        </button>
+                                        <button
+                                            type="button"
                                             data-update-url="{{ route('admin.health-package-bookings.update', $booking) }}"
                                             data-patient-name="{{ $booking->patient_name }}"
                                             data-package-name="{{ $booking->package_name }}"
                                             data-preferred-date="{{ $booking->preferred_date?->format('M d, Y') }}"
                                             data-payment-status="{{ $booking->payment_status }}"
                                             data-booking-status="{{ $booking->booking_status }}"
+                                            data-admin-remarks="{{ $booking->admin_remarks }}"
                                             onclick="openEditBookingModal(this)"
                                             class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary-600 transition-colors"
                                             title="Edit status"
@@ -162,7 +179,7 @@
                     </button>
                 </div>
 
-                <form id="updateBookingForm" method="POST">
+                <form id="updateBookingForm" method="POST" onsubmit="handleBookingFormSubmit(event)">
                     @csrf
                     @method('PUT')
 
@@ -188,6 +205,11 @@
                             </select>
                         </div>
 
+                        <div>
+                            <label class="form-label">Admin Remarks</label>
+                            <textarea name="admin_remarks" id="modal_admin_remarks" class="form-input" rows="3" placeholder="Optional remarks for the patient (visible in patient portal)"></textarea>
+                        </div>
+
                         <div class="flex items-center justify-end gap-3">
                             <button type="button" onclick="closeEditBookingModal()" class="btn btn-secondary">Cancel</button>
                             <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -198,7 +220,84 @@
         </div>
     </div>
 
+    <div id="reportUploadModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeReportUploadModal()"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">Upload Health Package Report</h2>
+                    <button type="button" onclick="closeReportUploadModal()" class="text-gray-400 hover:text-gray-600"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+
+                <form id="reportUploadForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="space-y-6">
+                        <div class="p-4 bg-gray-50 rounded-xl space-y-1">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Health Package Booking</p>
+                            <p id="reportBookingTitle" class="text-sm font-semibold text-gray-900"></p>
+                            <p id="reportBookingSubtitle" class="text-xs text-gray-500"></p>
+                        </div>
+
+                        <div id="currentReportWrap" class="hidden rounded-xl border border-sky-100 bg-sky-50 p-4">
+                            <p class="text-xs font-bold uppercase tracking-wider text-sky-700 mb-2">Current report</p>
+                            <a id="currentReportLink" href="#" target="_blank" class="text-sm font-semibold text-sky-700 hover:text-sky-800"></a>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Report File</label>
+                            <input type="file" name="report_file" class="form-input" accept=".pdf,.jpg,.jpeg,.png" required>
+                            <p class="mt-1 text-xs text-gray-400">PDF, JPG, JPEG, or PNG up to 5MB.</p>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3">
+                            <button type="button" onclick="closeReportUploadModal()" class="btn btn-secondary">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Upload Report</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function handleBookingFormSubmit(event) {
+            event.preventDefault();
+            const form = document.getElementById('updateBookingForm');
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(new FormData(form))
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`HTTP ${response.status}: ${text}`);
+                    });
+                }
+                return response;
+            })
+            .then(() => {
+                console.log('Update successful, reloading page...');
+                setTimeout(() => location.reload(), 500);
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert('Error saving booking: ' + err.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Changes';
+            });
+        }
+
         function openEditBookingModal(button) {
             document.getElementById('updateBookingForm').action = button.dataset.updateUrl;
             document.getElementById('modal_booking_status').value = button.dataset.bookingStatus;
@@ -209,11 +308,42 @@
                 <p><span class="font-semibold text-gray-900">Schedule:</span> ${button.dataset.preferredDate || '—'}</p>
             `;
 
+            // populate admin remarks if present
+            const remarks = button.dataset.adminRemarks || '';
+            const remarksEl = document.getElementById('modal_admin_remarks');
+            if (remarksEl) remarksEl.value = remarks;
+
             document.getElementById('editBookingModal').classList.remove('hidden');
         }
 
         function closeEditBookingModal() {
             document.getElementById('editBookingModal').classList.add('hidden');
+        }
+
+        function openReportUploadModal(button) {
+            const form = document.getElementById('reportUploadForm');
+            const currentReportWrap = document.getElementById('currentReportWrap');
+            const currentReportLink = document.getElementById('currentReportLink');
+
+            form.action = button.dataset.uploadUrl;
+            document.getElementById('reportBookingTitle').textContent = button.dataset.bookingTitle || '';
+            document.getElementById('reportBookingSubtitle').textContent = button.dataset.bookingSubtitle || '';
+
+            if (button.dataset.currentReportUrl) {
+                currentReportLink.href = button.dataset.currentReportUrl;
+                currentReportLink.textContent = button.dataset.currentReportName || 'View current report';
+                currentReportWrap.classList.remove('hidden');
+            } else {
+                currentReportWrap.classList.add('hidden');
+                currentReportLink.removeAttribute('href');
+                currentReportLink.textContent = '';
+            }
+
+            document.getElementById('reportUploadModal').classList.remove('hidden');
+        }
+
+        function closeReportUploadModal() {
+            document.getElementById('reportUploadModal').classList.add('hidden');
         }
     </script>
 @endsection

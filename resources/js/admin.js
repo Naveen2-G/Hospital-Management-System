@@ -67,129 +67,148 @@ if (searchInput) {
     }
 }
 
-// ─── Change Password Modal ──────────────────────────────────
-const changePasswordBtn = document.getElementById('change-password-btn');
-const changePasswordModal = document.getElementById('change-password-modal');
-const closePasswordModal = document.getElementById('close-password-modal');
-const cancelPasswordModal = document.getElementById('cancel-password-modal');
-const changePasswordForm = document.getElementById('change-password-form');
+document.addEventListener('DOMContentLoaded', () => {
+    // ─── Change Password Modal ──────────────────────────────────
+    const changePasswordBtn = document.getElementById('change-password-btn');
+    const changePasswordModal = document.getElementById('change-password-modal');
+    const closePasswordModal = document.getElementById('close-password-modal');
+    const cancelPasswordModal = document.getElementById('cancel-password-modal');
+    const changePasswordForm = document.getElementById('change-password-form');
 
-if (changePasswordBtn && changePasswordModal) {
-    // Open modal
-    changePasswordBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        changePasswordModal.classList.remove('hidden');
-        changePasswordForm.reset();
-    });
+    if (changePasswordBtn && changePasswordModal) {
+        // Open modal
+        changePasswordBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent dropdown from interfering
+            changePasswordModal.classList.remove('hidden');
+            changePasswordForm.reset();
+            
+            // Hide the user dropdown when modal opens
+            const userDropdown = document.getElementById('user-dropdown');
+            if (userDropdown) userDropdown.classList.add('hidden');
+        });
 
-    // Close modal
-    const closeModal = () => {
-        changePasswordModal.classList.add('hidden');
-        changePasswordForm.reset();
-        clearErrors();
-    };
+        // Close modal
+        const closeModal = () => {
+            changePasswordModal.classList.add('hidden');
+            changePasswordForm.reset();
+            clearErrors();
+        };
 
-    closePasswordModal.addEventListener('click', closeModal);
-    cancelPasswordModal.addEventListener('click', closeModal);
+        if (closePasswordModal) closePasswordModal.addEventListener('click', closeModal);
+        if (cancelPasswordModal) cancelPasswordModal.addEventListener('click', closeModal);
 
-    // Close on backdrop click
-    changePasswordModal.addEventListener('click', (e) => {
-        if (e.target === changePasswordModal) {
-            closeModal();
-        }
-    });
-
-    // Form submission
-    changePasswordForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        clearErrors();
-
-        const currentPassword = document.getElementById('current_password');
-        const newPassword = document.getElementById('new_password');
-        const confirmPassword = document.getElementById('confirm_password');
-
-        // Client-side validation
-        if (!currentPassword.value) {
-            showError('current_password_error', 'Current password is required');
-            return;
-        }
-
-        if (!newPassword.value) {
-            showError('new_password_error', 'New password is required');
-            return;
-        }
-
-        if (newPassword.value.length < 8) {
-            showError('new_password_error', 'New password must be at least 8 characters');
-            return;
-        }
-
-        if (!/[A-Z]/.test(newPassword.value)) {
-            showError('new_password_error', 'New password must contain uppercase letter');
-            return;
-        }
-
-        if (!/[a-z]/.test(newPassword.value)) {
-            showError('new_password_error', 'New password must contain lowercase letter');
-            return;
-        }
-
-        if (!/[0-9]/.test(newPassword.value)) {
-            showError('new_password_error', 'New password must contain number');
-            return;
-        }
-
-        if (!confirmPassword.value) {
-            showError('confirm_password_error', 'Please confirm your new password');
-            return;
-        }
-
-        if (newPassword.value !== confirmPassword.value) {
-            showError('confirm_password_error', 'Passwords do not match');
-            return;
-        }
-
-        // Submit form
-        try {
-            const route = changePasswordModal.getAttribute('data-route');
-            const response = await fetch(route, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify({
-                    current_password: currentPassword.value,
-                    new_password: newPassword.value,
-                    confirm_password: confirmPassword.value,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                window.showToast('Password updated successfully!', 'success');
+        // Close on backdrop click
+        changePasswordModal.addEventListener('click', (e) => {
+            if (e.target === changePasswordModal) {
                 closeModal();
-            } else {
-                // Handle errors from server
-                if (data.errors) {
-                    Object.entries(data.errors).forEach(([field, messages]) => {
-                        if (Array.isArray(messages)) {
-                            showError(`${field}_error`, messages[0]);
-                        } else {
-                            showError(`${field}_error`, messages);
-                        }
-                    });
-                } else {
-                    window.showToast(data.message || 'Error updating password', 'error');
-                }
             }
-        } catch (error) {
-            console.error('Error:', error);
-            window.showToast('Error updating password. Please try again.', 'error');
+        });
+
+        // Form submission
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                clearErrors();
+
+                const currentPassword = document.getElementById('current_password');
+                const newPassword = document.getElementById('new_password');
+                const confirmPassword = document.getElementById('confirm_password');
+
+                // Client-side validation
+                if (!currentPassword.value) {
+                    showError('current_password_error', 'Current password is required');
+                    return;
+                }
+
+                if (!newPassword.value) {
+                    showError('new_password_error', 'New password is required');
+                    return;
+                }
+
+                if (newPassword.value.length < 8) {
+                    showError('new_password_error', 'New password must be at least 8 characters');
+                    return;
+                }
+
+                if (!/[A-Z]/.test(newPassword.value)) {
+                    showError('new_password_error', 'New password must contain uppercase letter');
+                    return;
+                }
+
+                if (!/[a-z]/.test(newPassword.value)) {
+                    showError('new_password_error', 'New password must contain lowercase letter');
+                    return;
+                }
+
+                if (!/[0-9]/.test(newPassword.value)) {
+                    showError('new_password_error', 'New password must contain number');
+                    return;
+                }
+
+                if (!confirmPassword.value) {
+                    showError('confirm_password_error', 'Please confirm your new password');
+                    return;
+                }
+
+                if (newPassword.value !== confirmPassword.value) {
+                    showError('confirm_password_error', 'Passwords do not match');
+                    return;
+                }
+
+                // Submit form
+                try {
+                    const route = changePasswordModal.getAttribute('data-route');
+                    const response = await fetch(route, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                        body: JSON.stringify({
+                            current_password: currentPassword.value,
+                            new_password: newPassword.value,
+                            confirm_password: confirmPassword.value,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        if (window.showToast) {
+                            window.showToast('Password updated successfully!', 'success');
+                        } else {
+                            alert('Password updated successfully!');
+                        }
+                        closeModal();
+                    } else {
+                        // Handle errors from server
+                        if (data.errors) {
+                            Object.entries(data.errors).forEach(([field, messages]) => {
+                                if (Array.isArray(messages)) {
+                                    showError(`${field}_error`, messages[0]);
+                                } else {
+                                    showError(`${field}_error`, messages);
+                                }
+                            });
+                        } else {
+                            if (window.showToast) {
+                                window.showToast(data.message || 'Error updating password', 'error');
+                            } else {
+                                alert(data.message || 'Error updating password');
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    if (window.showToast) {
+                        window.showToast('Error updating password. Please try again.', 'error');
+                    }
+                }
+            });
         }
-    });
-}
+    }
+});
 
 function showError(fieldId, message) {
     const errorElement = document.getElementById(fieldId);
