@@ -3,279 +3,258 @@
 @section('title', 'Doctor Profile')
 
 @section('content')
-    @php
-        $doctorName = $doctor?->name ?? 'Doctor';
-        $doctorDepartment = $doctor?->department?->name ?? 'Core care team';
-        $doctorSpecialization = $doctor?->specialization ?? 'General Practice';
-        $doctorQualification = $doctor?->qualification ?? 'Clinical Practitioner';
-        $experienceYears = $doctor?->experience_years ?? 0;
-        $consultationFee = $doctor?->consultation_fee !== null ? number_format((float) $doctor->consultation_fee, 2) : null;
-        $availability = is_array($doctor?->availability) ? $doctor->availability : [];
-        $availabilityLabels = [
-            'mon' => 'Monday',
-            'tue' => 'Tuesday',
-            'wed' => 'Wednesday',
-            'thu' => 'Thursday',
-            'fri' => 'Friday',
-            'sat' => 'Saturday',
-            'sun' => 'Sunday',
-        ];
-        $availabilitySummary = [];
-        foreach ($availabilityLabels as $key => $label) {
-            if (! empty($availability[$key]) && is_array($availability[$key])) {
-                $availabilitySummary[] = [
-                    'day' => $label,
-                    'slots' => $availability[$key],
-                ];
-            }
-        }
-        $personalCards = [
-            ['label' => 'Phone Number', 'value' => old('phone', $doctor?->phone ?? $doctor?->user?->phone ?? '—')],
-            ['label' => 'Email', 'value' => old('email', $doctor?->email ?? $doctor?->user?->email ?? '—')],
-            ['label' => 'Gender', 'value' => old('gender', $doctor?->gender ? ucfirst($doctor->gender) : '—')],
-            ['label' => 'Date of Birth', 'value' => old('dob', $doctor?->dob?->format('d M, Y') ?? '—')],
-            ['label' => 'Blood Group', 'value' => old('blood_group', $doctor?->blood_group ?? '—')],
-            ['label' => 'Employee ID', 'value' => old('employee_id', $doctor?->employee_id ?? '—')],
-            ['label' => 'Joining Date', 'value' => old('joining_date', $doctor?->joining_date?->format('d M, Y') ?? '—')],
-        ];
-    @endphp
-
-    <div class="space-y-8">
-        @if(session('success'))
-            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <section class="overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
-            <div class="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-                <div class="relative overflow-hidden bg-linear-to-br from-sky-500 via-blue-600 to-slate-950 p-6 sm:p-8 text-white">
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(125,211,252,0.32),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.15),transparent_24%)]"></div>
-                    <div class="relative">
-                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">Profile</p>
-                        <h2 class="mt-2 text-4xl font-black tracking-tight">{{ $doctorName }}</h2>
-                        <p class="mt-3 max-w-2xl text-sm leading-7 text-slate-100">
-                            Manage your personal information, identity details, and availability from one place.
-                        </p>
-
-                        <div class="mt-6 flex flex-wrap gap-3">
-                            <span class="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold">{{ $doctorSpecialization }}</span>
-                            <span class="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold">{{ $doctorDepartment }}</span>
-                            <span class="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold">{{ $doctorQualification }}</span>
-                        </div>
-
-                        <div class="mt-8 grid gap-3 sm:grid-cols-3">
-                            <div class="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100">Experience</p>
-                                <p class="mt-2 text-2xl font-black">{{ $experienceYears }} yrs</p>
-                            </div>
-                            <div class="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100">Fee</p>
-                                <p class="mt-2 text-2xl font-black">{{ $consultationFee ? '₹'.$consultationFee : '—' }}</p>
-                            </div>
-                            <div class="rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100">Status</p>
-                                <p class="mt-2 text-2xl font-black">{{ ucfirst($doctor?->status ?? 'active') }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-50 p-6 sm:p-8">
-                    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                        @foreach($personalCards as $card)
-                            <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{{ $card['label'] }}</p>
-                                <p class="mt-2 text-sm font-semibold text-slate-900">{{ $card['value'] }}</p>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="grid gap-6 xl:grid-cols-[1fr_380px]">
-            <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Edit Profile</p>
-                        <h3 class="text-2xl font-bold text-slate-900">Update personal information</h3>
-                    </div>
-                    <span class="rounded-full bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-700">Save changes</span>
-                </div>
-
-                <form method="POST" action="{{ route('doctor.profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <label class="form-label" for="doctor_name">Full Name</label>
-                            <input id="doctor_name" type="text" name="name" class="form-input" value="{{ old('name', $doctor?->name ?? '') }}" required>
-                            @error('name')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label" for="doctor_employee_id">Employee ID</label>
-                            <input id="doctor_employee_id" type="text" name="employee_id" class="form-input" value="{{ old('employee_id', $doctor?->employee_id ?? '') }}" placeholder="EMP-1024">
-                            @error('employee_id')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label" for="doctor_phone">Phone Number</label>
-                            <input id="doctor_phone" type="text" name="phone" class="form-input" value="{{ old('phone', $doctor?->phone ?? $doctor?->user?->phone ?? '') }}" required>
-                            @error('phone')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label" for="doctor_email">Email</label>
-                            <input id="doctor_email" type="email" name="email" class="form-input" value="{{ old('email', $doctor?->email ?? $doctor?->user?->email ?? '') }}" required>
-                            @error('email')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label" for="doctor_gender">Gender</label>
-                            <select id="doctor_gender" name="gender" class="form-input">
-                                <option value="">Select gender</option>
-                                <option value="male" {{ old('gender', $doctor?->gender ?? '') === 'male' ? 'selected' : '' }}>Male</option>
-                                <option value="female" {{ old('gender', $doctor?->gender ?? '') === 'female' ? 'selected' : '' }}>Female</option>
-                                <option value="other" {{ old('gender', $doctor?->gender ?? '') === 'other' ? 'selected' : '' }}>Other</option>
-                            </select>
-                            @error('gender')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label" for="doctor_dob">Date of Birth</label>
-                            <input id="doctor_dob" type="date" name="dob" class="form-input" value="{{ old('dob', $doctor?->dob?->format('Y-m-d') ?? '') }}">
-                            @error('dob')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label" for="doctor_blood_group">Blood Group</label>
-                            <select id="doctor_blood_group" name="blood_group" class="form-input">
-                                <option value="">Select blood group</option>
-                                @foreach(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $group)
-                                    <option value="{{ $group }}" {{ old('blood_group', $doctor?->blood_group ?? '') === $group ? 'selected' : '' }}>{{ $group }}</option>
-                                @endforeach
-                            </select>
-                            @error('blood_group')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label" for="doctor_joining_date">Joining Date</label>
-                            <input id="doctor_joining_date" type="date" name="joining_date" class="form-input" value="{{ old('joining_date', $doctor?->joining_date?->format('Y-m-d') ?? '') }}">
-                            @error('joining_date')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="form-label" for="doctor_address">Address</label>
-                            <textarea id="doctor_address" name="address" rows="4" class="form-input">{{ old('address', $doctor?->address ?? '') }}</textarea>
-                            @error('address')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                    </div>
-
-                    <div class="rounded-3xl border border-slate-200 bg-slate-50/80 p-5">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Professional details</p>
-                                <h4 class="mt-1 text-lg font-bold text-slate-900">Clinic profile</h4>
-                            </div>
-                            <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">Visible to patients</span>
-                        </div>
-
-                        <div class="mt-4 grid gap-4 md:grid-cols-2">
-                            <div>
-                                <label class="form-label" for="doctor_specialization">Specialization</label>
-                                <input id="doctor_specialization" type="text" name="specialization" class="form-input" value="{{ old('specialization', $doctor?->specialization ?? '') }}" placeholder="Cardiology, Dermatology...">
-                                @error('specialization')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label class="form-label" for="doctor_experience_years">Experience (years)</label>
-                                <input id="doctor_experience_years" type="number" min="0" max="80" name="experience_years" class="form-input" value="{{ old('experience_years', $doctor?->experience_years ?? '') }}" placeholder="10">
-                                @error('experience_years')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label class="form-label" for="doctor_consultation_fee">Consultation fee (₹)</label>
-                                <input id="doctor_consultation_fee" type="number" min="0" step="0.01" name="consultation_fee" class="form-input" value="{{ old('consultation_fee', $doctor?->consultation_fee ?? '') }}" placeholder="500">
-                                @error('consultation_fee')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label class="form-label" for="doctor_image">Profile image</label>
-                                <input id="doctor_image" type="file" name="image" accept="image/*" class="form-input">
-                                @error('image')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="form-label" for="doctor_bio">About / Bio</label>
-                                <textarea id="doctor_bio" name="bio" rows="4" class="form-input" placeholder="Short professional bio...">{{ old('bio', $doctor?->bio ?? '') }}</textarea>
-                                @error('bio')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-3 border-t border-slate-200 pt-5">
-                        <a href="{{ route('doctor.dashboard') }}" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</a>
-                        <button type="submit" class="rounded-2xl bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800">Save Changes</button>
-                    </div>
-                </form>
+<section class="patient-card" style="border-color:rgba(59,130,246,0.18);">
+    
+    <div class="patient-card-header">
+        <h2 class="patient-card-title flex items-center gap-2">
+            <div class="card-title-icon" style="background:linear-gradient(135deg,#0284c7,#2563eb);">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                </svg>
             </div>
 
-            <aside class="space-y-6">
-                <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Security</p>
-                    <h4 class="mt-2 text-lg font-bold text-slate-900">Password</h4>
-                    <p class="mt-2 text-sm text-slate-600">Keep your account secure by updating your password periodically.</p>
-                    <form method="POST" action="{{ route('doctor.change-password.update') }}" class="mt-4 space-y-3">
-                        @csrf
-                        <div>
-                            <label class="form-label" for="current_password">Current password</label>
-                            <input id="current_password" name="current_password" type="password" class="form-input" required>
-                            @error('current_password')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label" for="new_password">New password</label>
-                            <input id="new_password" name="new_password" type="password" class="form-input" required>
-                            @error('new_password')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="form-label" for="confirm_password">Confirm new password</label>
-                            <input id="confirm_password" name="confirm_password" type="password" class="form-input" required>
-                            @error('confirm_password')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
-                        </div>
-                        <button type="submit" class="w-full rounded-2xl bg-sky-600 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-700">Change Password</button>
-                    </form>
-                </div>
+            Doctor Profile
+        </h2>
 
-                <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Quick Summary</p>
-                    <div class="mt-4 space-y-3 text-sm">
-                        <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                            <span class="text-slate-500">Department</span>
-                            <span class="font-semibold text-slate-900">{{ $doctorDepartment }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                            <span class="text-slate-500">Qualification</span>
-                            <span class="font-semibold text-slate-900">{{ $doctorQualification }}</span>
-                        </div>
-                        <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                            <span class="text-slate-500">Experience</span>
-                            <span class="font-semibold text-slate-900">{{ $experienceYears }} years</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Availability</p>
-                    <div class="mt-4 space-y-3">
-                        @forelse($availabilitySummary as $day)
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <div class="flex items-center justify-between gap-3">
-                                    <span class="font-semibold text-slate-900">{{ $day['day'] }}</span>
-                                    <span class="text-xs font-semibold text-sky-700">{{ count($day['slots']) }} slots</span>
-                                </div>
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    @foreach($day['slots'] as $slot)
-                                        <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">{{ $slot }}</span>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @empty
-                            <p class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500">No availability slots have been set yet.</p>
-                        @endforelse
-                    </div>
-                </div>
-            </aside>
-        </section>
+        <p class="patient-card-subtitle">
+            Manage your personal and professional information.
+        </p>
     </div>
+
+    @if(session('success'))
+        <div class="patient-alert patient-alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <form method="POST"
+          action="{{ route('doctor.profile.update') }}"
+          enctype="multipart/form-data">
+
+        @csrf
+        @method('PUT')
+
+        <div class="profile-avatar-wrap">
+
+            @if(isset($doctor->image) && $doctor->image)
+                <img src="{{ Storage::url($doctor->image) }}"
+                     alt="Doctor"
+                     class="profile-avatar">
+            @else
+                <div class="profile-avatar-placeholder"
+                     style="background:linear-gradient(135deg,#0284c7,#2563eb);">
+                    {{ strtoupper(substr($doctor->name ?? 'D',0,1)) }}
+                </div>
+            @endif
+
+            <div>
+                <div style="font-weight:800;font-size:0.95rem;color:#0f172a;">
+                    {{ $doctor->name }}
+                </div>
+
+                <div style="font-size:0.8rem;color:#64748b;margin-top:0.15rem;">
+                    {{ $doctor->email }}
+                </div>
+
+                <div style="margin-top:0.4rem;">
+                    <span class="patient-badge"
+                          style="background:rgba(59,130,246,0.08);color:#1d4ed8;border-color:rgba(59,130,246,0.15);">
+                        {{ $doctor->specialization ?? 'General Physician' }}
+                    </span>
+                </div>
+
+                <label style="margin-top:0.6rem;display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;font-weight:700;color:#2563eb;cursor:pointer;">
+    
+    <span id="doctor-photo-text">Choose Photo</span>
+
+    <input type="file"
+           name="image"
+           accept="image/*"
+           style="display:none;"
+           onchange="
+                document.getElementById('doctor-photo-text').innerText =
+                this.files[0] ? this.files[0].name : 'Choose Photo';
+           ">
+</label>
+            </div>
+        </div>
+
+        <div class="profile-section-title"
+             style="color:#2563eb;">
+            Personal Information
+        </div>
+
+        <div class="profile-field-group">
+
+            <div class="profile-field">
+                <label>Full Name *</label>
+                <input class="profile-input"
+                       type="text"
+                       name="name"
+                       value="{{ old('name',$doctor->name ?? '') }}"
+                       required>
+            </div>
+
+            <div class="profile-field">
+                <label>Employee ID</label>
+                <input class="profile-input"
+                       type="text"
+                       name="employee_id"
+                       value="{{ old('employee_id',$doctor->employee_id ?? '') }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Phone</label>
+                <input class="profile-input"
+                       type="text"
+                       name="phone"
+                       value="{{ old('phone',$doctor->phone ?? '') }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Email</label>
+                <input class="profile-input"
+                       type="email"
+                       name="email"
+                       value="{{ old('email',$doctor->email ?? '') }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Gender</label>
+
+                <select class="profile-input" name="gender">
+                    <option value="">Select</option>
+
+                    <option value="male"
+                        {{ old('gender',$doctor->gender ?? '') == 'male' ? 'selected' : '' }}>
+                        Male
+                    </option>
+
+                    <option value="female"
+                        {{ old('gender',$doctor->gender ?? '') == 'female' ? 'selected' : '' }}>
+                        Female
+                    </option>
+
+                    <option value="other"
+                        {{ old('gender',$doctor->gender ?? '') == 'other' ? 'selected' : '' }}>
+                        Other
+                    </option>
+                </select>
+            </div>
+
+            <div class="profile-field">
+                <label>Date of Birth</label>
+
+                <input class="profile-input"
+                       type="date"
+                       name="dob"
+                       value="{{ old('dob',$doctor?->dob?->format('Y-m-d')) }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Blood Group</label>
+
+                <select class="profile-input" name="blood_group">
+                    <option value="">Select</option>
+
+                    @foreach(['A+','A-','B+','B-','AB+','AB-','O+','O-'] as $bg)
+                        <option value="{{ $bg }}"
+                            {{ old('blood_group',$doctor->blood_group ?? '') == $bg ? 'selected' : '' }}>
+                            {{ $bg }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="profile-field">
+                <label>Joining Date</label>
+
+                <input class="profile-input"
+                       type="date"
+                       name="joining_date"
+                       value="{{ old('joining_date',$doctor?->joining_date?->format('Y-m-d')) }}">
+            </div>
+
+            <div class="profile-field"
+                 style="grid-column:1/-1;">
+                <label>Address</label>
+
+                <textarea class="profile-input"
+                          rows="3"
+                          name="address">{{ old('address',$doctor->address ?? '') }}</textarea>
+            </div>
+        </div>
+
+        <div class="profile-section-title"
+             style="color:#2563eb;">
+            Professional Information
+        </div>
+
+        <div class="profile-field-group">
+
+            <div class="profile-field">
+                <label>Specialization</label>
+
+                <input class="profile-input"
+                       type="text"
+                       name="specialization"
+                       value="{{ old('specialization',$doctor->specialization ?? '') }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Qualification</label>
+
+                <input class="profile-input"
+                       type="text"
+                       name="qualification"
+                       value="{{ old('qualification',$doctor->qualification ?? '') }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Experience (Years)</label>
+
+                <input class="profile-input"
+                       type="number"
+                       name="experience_years"
+                       value="{{ old('experience_years',$doctor->experience_years ?? '') }}">
+            </div>
+
+            <div class="profile-field">
+                <label>Consultation Fee (₹)</label>
+
+                <input class="profile-input"
+                       type="number"
+                       step="0.01"
+                       name="consultation_fee"
+                       value="{{ old('consultation_fee',$doctor->consultation_fee ?? '') }}">
+            </div>
+
+            <div class="profile-field"
+                 style="grid-column:1/-1;">
+                <label>Bio</label>
+
+                <textarea class="profile-input"
+                          rows="4"
+                          name="bio">{{ old('bio',$doctor->bio ?? '') }}</textarea>
+            </div>
+        </div>
+
+        <div style="margin-top:1.5rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+
+            <button type="submit"
+                    class="patient-pill patient-pill-dark"
+                    style="background:linear-gradient(135deg,#0284c7,#2563eb);border:none;">
+
+                Save Profile
+            </button>
+
+            <button type="button"
+        data-doctor-password-open
+        class="patient-pill">
+    Change Password
+</button>
+
+        </div>
+    </form>
+</section>
 @endsection

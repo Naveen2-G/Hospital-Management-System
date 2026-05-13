@@ -66,7 +66,12 @@
                     </div>
 
                     <div class="relative overflow-hidden rounded-4xl border border-slate-200 bg-slate-950 text-white shadow-2xl">
-                        <div class="absolute inset-0 bg-[linear-gradient(160deg,rgba(2,6,23,0.55),rgba(2,6,23,0.15)),url('{{ asset('images/hero-medical.png') }}')] bg-cover bg-center"></div>
+                        <div 
+    class="absolute inset-0 bg-cover bg-center"
+    style="background-image:
+    linear-gradient(160deg, rgba(2,6,23,0.72), rgba(2,6,23,0.35)),
+    url('{{ isset($doctor->image) && $doctor->image ? Storage::url($doctor->image) : asset('images/hero-medical.png') }}');">
+</div>
                         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(125,211,252,0.28),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.25),transparent_28%)]"></div>
                         <div class="relative flex h-full min-h-96 flex-col justify-between p-6 sm:p-8">
                             <div class="flex items-center justify-between gap-4">

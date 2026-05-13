@@ -78,7 +78,7 @@
         </div>
     </header>
 
-    <main class="relative z-[1] w-full px-6 pb-16 pt-6">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         @if(session('success'))
             <div class="patient-alert patient-alert-success">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

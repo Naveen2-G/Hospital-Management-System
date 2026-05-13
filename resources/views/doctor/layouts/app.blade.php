@@ -10,12 +10,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        #doctor-profile-modal,
+        /* #doctor-profile-modal,
     #doctor-password-modal,
     #patient-drawer,
     #patient-drawer-overlay {
         display: none !important;
-    }
+    } */
 
         #doctor-page-loader {
             position: fixed;
@@ -63,7 +63,11 @@
         }
     </style>
     <!-- @vite(['resources/js/doctor.js']) -->
-     @vite(['resources/css/admin.css', 'resources/js/doctor.js'])
+     @vite([
+    'resources/css/admin.css',
+    'resources/css/patient.css',
+    'resources/js/doctor.js'
+])
 </head>
 <body class="doctor-loading min-h-screen font-sans bg-slate-50 text-slate-900 antialiased" style="background: radial-gradient(circle at top left, rgba(59,130,246,0.10), transparent 28%), radial-gradient(circle at top right, rgba(14,165,233,0.08), transparent 30%), linear-gradient(140deg, #f8fafc 0%, #f3f7ff 52%, #f8fafc 100%);">
     @php use Illuminate\Support\Facades\Auth; @endphp
@@ -220,7 +224,7 @@
             </div>
         </header>
 
-        <main class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             @yield('content')
         </main>
 
