@@ -149,9 +149,9 @@
                             <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                             Active
                         </div>
-                        <div class="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700">
+                        <!-- <div class="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700">
                             {{ $unreadCount }} alerts
-                        </div>
+                        </div> -->
                         <div class="relative">
                             <button
                                 type="button"
@@ -175,18 +175,7 @@
                                     <p class="text-sm font-semibold text-slate-900">{{ $doctorName }}</p>
                                     <p class="text-xs text-slate-500">{{ $specialization }}</p>
                                 </div>
-                                <button type="button" data-doctor-password-open class="mt-2 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700">
-                                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V7.875a4.125 4.125 0 10-8.25 0V10.5m8.25 0a2.25 2.25 0 012.25 2.25v4.5A2.25 2.25 0 0116.5 19.5h-9A2.25 2.25 0 015.25 17.25v-4.5A2.25 2.25 0 017.5 10.5m9 0h-9"/>
-                                    </svg>
-                                    Change Password
-                                </button>
-                                <button type="button" data-doctor-profile-open class="mt-1 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700">
-                                    <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.118a7.5 7.5 0 0115 0"/>
-                                    </svg>
-                                    View Profile
-                                </button>
+                                
                                 <form method="POST" action="{{ route('logout') }}" class="mt-1">
                                     @csrf
                                     <button type="submit" class="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold text-rose-700 hover:bg-rose-50">
