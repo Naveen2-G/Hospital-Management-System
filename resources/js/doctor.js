@@ -165,8 +165,7 @@ function renderPatientTimeline(history, timeline) {
 
     source.forEach((item, idx) => {
         const entry = document.createElement("div");
-        entry.className =
-            "history-entry rounded-2xl border border-slate-200 bg-white p-4";
+        entry.className = "history-entry history-entry-card";
 
         const titleWrap = document.createElement("div");
         titleWrap.className = "flex items-center justify-between gap-3";

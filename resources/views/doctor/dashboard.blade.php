@@ -167,39 +167,6 @@
                 </div>
             </div>
 
-            {{-- Notifications & Clinical Alerts --}}
-            <div id="notifications" class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
-                <div class="flex items-center gap-3 mb-6">
-                    <span class="rounded-2xl bg-rose-50 p-3 text-rose-700">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31"/>
-                        </svg>
-                    </span>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Notifications</p>
-                        <h3 class="text-2xl font-bold text-slate-900">Clinical alerts</h3>
-                    </div>
-                </div>
-                <div class="space-y-3">
-                    @forelse($notifications as $notification)
-                        @php
-                            $type = strtolower($notification->type ?? 'system');
-                            $notificationTone = $notificationStyles[$type] ?? $notificationStyles['system'];
-                        @endphp
-                        <div class="rounded-3xl border bg-linear-to-br {{ $notificationTone }} p-4 shadow-sm">
-                            <div class="flex items-start justify-between gap-3">
-                                <div>
-                                    <p class="font-semibold text-slate-900">{{ $notification->title }}</p>
-                                    <p class="text-sm text-slate-600">{{ $notification->message }}</p>
-                                </div>
-                                <span class="text-xs font-semibold text-slate-500">{{ $notification->created_at->diffForHumans() }}</span>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-slate-500">No new notifications.</p>
-                    @endforelse
-                </div>
-            </div>
 
             {{-- Schedule Management & Weekly Availability --}}
             <div id="schedule" class="rounded-[1.75rem] border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur-sm">
@@ -938,65 +905,416 @@
         {{-- Notifications & Alerts Section --}}
 
 
+        @if(($activeSection ?? 'overview') === 'reports')
         {{-- Reports & Performance Section --}}
-
-
-        <div id="patient-drawer-overlay" class="fixed inset-0 z-40 hidden bg-slate-950/55 backdrop-blur-sm"></div>
-        <aside id="patient-drawer" class="fixed left-1/2 top-1/2 z-50 flex max-h-[88vh] w-[min(92vw,56rem)] -translate-x-1/2 -translate-y-1/2 scale-95 flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-linear-to-br from-white via-sky-50/40 to-cyan-50/30 opacity-0 ring-1 ring-sky-100/70 shadow-[0_30px_80px_rgba(15,23,42,0.26)] pointer-events-none transition-all duration-300 backdrop-blur-sm">
-            <div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-linear-to-r from-slate-50 via-white to-sky-50 px-6 py-5">
-                <div class="space-y-2">
-                    <p class="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-sky-700 shadow-sm">Patient detail drawer</p>
-                    <h3 id="patient-drawer-name" class="text-3xl font-black tracking-tight text-slate-950 drop-shadow-[0_1px_0_rgba(255,255,255,0.85)]">Patient profile</h3>
-                    <p class="max-w-xl text-sm leading-6 text-slate-500">Quickly review contact details, demographics, and recent activity from one focused panel.</p>
-                </div>
-                <button type="button" id="close-patient-drawer" class="rounded-full bg-linear-to-r from-sky-500 to-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-sky-500/25 transition-all duration-200 hover:-translate-y-0.5 hover:from-sky-600 hover:to-blue-700 hover:shadow-lg hover:shadow-blue-500/30 active:translate-y-0">Close</button>
-            </div>
-            <div class="patient-drawer-scroll flex-1 space-y-6 overflow-y-auto px-6 py-5">
-                <div class="grid gap-3 sm:grid-cols-2">
-                    <div class="group rounded-3xl border border-slate-200 bg-slate-50/90 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white hover:shadow-lg hover:shadow-sky-500/10">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 transition-colors group-hover:text-sky-600">Phone</p>
-                        <p id="patient-drawer-phone" class="mt-2 text-base font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-sky-950">—</p>
-                    </div>
-                    <div class="group rounded-3xl border border-slate-200 bg-slate-50/90 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white hover:shadow-lg hover:shadow-sky-500/10">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 transition-colors group-hover:text-sky-600">Email</p>
-                        <p id="patient-drawer-email" class="mt-2 text-base font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-sky-950">—</p>
-                    </div>
-                    <div class="group rounded-3xl border border-slate-200 bg-slate-50/90 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white hover:shadow-lg hover:shadow-sky-500/10">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 transition-colors group-hover:text-sky-600">Gender</p>
-                        <p id="patient-drawer-gender" class="mt-2 text-base font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-sky-950">—</p>
-                    </div>
-                    <div class="group rounded-3xl border border-slate-200 bg-slate-50/90 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white hover:shadow-lg hover:shadow-sky-500/10">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 transition-colors group-hover:text-sky-600">Blood group</p>
-                        <p id="patient-drawer-blood-group" class="mt-2 text-base font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-sky-950">—</p>
-                    </div>
-                    <div class="group rounded-3xl bg-white p-4 sm:col-span-2 transition-all duration-200 hover:-translate-y-0.5 hover:bg-sky-50/60 hover:shadow-lg hover:shadow-sky-500/10">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 transition-colors group-hover:text-sky-600">DOB</p>
-                        <p id="patient-drawer-dob" class="mt-2 text-base font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-sky-950">—</p>
-                    </div>
-                    <div class="group rounded-3xl bg-white p-4 sm:col-span-2 transition-all duration-200 hover:-translate-y-0.5 hover:bg-sky-50/60 hover:shadow-lg hover:shadow-sky-500/10">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 transition-colors group-hover:text-sky-600">Address</p>
-                        <p id="patient-drawer-address" class="mt-2 text-base font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-sky-950">—</p>
-                    </div>
-                    <div class="group rounded-3xl bg-white p-4 sm:col-span-2 transition-all duration-200 hover:-translate-y-0.5 hover:bg-sky-50/60 hover:shadow-lg hover:shadow-sky-500/10">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 transition-colors group-hover:text-sky-600">Emergency contact</p>
-                        <p id="patient-drawer-emergency" class="mt-2 text-base font-semibold tracking-tight text-slate-900 transition-colors group-hover:text-sky-950">—</p>
-                    </div>
-                </div>
-
-                <div class="rounded-4xl border border-slate-200 bg-linear-to-br from-slate-50 to-sky-50/60 p-5 shadow-sm">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <p class="text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">History</p>
-                            <h4 class="mt-1 text-xl font-black tracking-tight text-slate-950">Recent patient activity</h4>
+        <section id="reports" class="space-y-8">
+            {{-- Performance Analytics Hero --}}
+            <div class="relative overflow-hidden rounded-4xl border border-slate-200 bg-white p-8 shadow-sm">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.08),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.05),transparent_30%)]"></div>
+                <div class="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="max-w-2xl space-y-4">
+                        <div class="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-violet-700">
+                            Clinical Performance
                         </div>
-                        <span id="patient-drawer-visits" class="rounded-full bg-linear-to-r from-sky-500 to-blue-600 px-3 py-1 text-xs font-semibold text-white shadow-md shadow-sky-500/20 transition-transform duration-200 hover:-translate-y-0.5">0 visits</span>
+                        <h3 class="text-3xl font-black tracking-tight text-slate-950">Practice Insights</h3>
+                        <p class="text-base leading-relaxed text-slate-600">
+                            Review your clinical productivity, patient outcomes, and service trends. These metrics are calculated based on your recent activity and patient interactions.
+                        </p>
                     </div>
-                    <div id="patient-drawer-history" class="mt-4 space-y-3"></div>
+                    <div class="grid shrink-0 grid-cols-2 gap-4">
+                        <div class="rounded-3xl border border-slate-100 bg-slate-50/50 p-6 text-center backdrop-blur-sm transition hover:border-sky-200 hover:bg-white hover:shadow-xl hover:shadow-sky-500/5">
+                            <p class="text-sm font-semibold text-slate-500">Completion Rate</p>
+                            <p class="mt-2 text-4xl font-black text-sky-600">{{ $stats['completion_rate'] }}%</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-100 bg-slate-50/50 p-6 text-center backdrop-blur-sm transition hover:border-emerald-200 hover:bg-white hover:shadow-xl hover:shadow-emerald-500/5">
+                            <p class="text-sm font-semibold text-slate-500">Total Visits</p>
+                            <p class="mt-2 text-4xl font-black text-emerald-600">{{ $stats['completed_consultations'] }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Statistical Cards Grid --}}
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {{-- Patients Handled --}}
+                <div class="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div class="rounded-2xl bg-sky-50 p-3 text-sky-600 group-hover:bg-sky-500 group-hover:text-white transition-colors">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400">Total Unique</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="text-4xl font-black text-slate-950">{{ $stats['patients_handled'] }}</h4>
+                        <p class="mt-1 text-sm font-semibold text-slate-500">Patients Managed</p>
+                    </div>
+                </div>
+
+                {{-- Total Appointments --}}
+                <div class="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div class="rounded-2xl bg-amber-50 p-3 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400">Scheduled</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="text-4xl font-black text-slate-950">{{ $stats['today_appointments'] + $stats['upcoming_appointments'] }}</h4>
+                        <p class="mt-1 text-sm font-semibold text-slate-500">Total Bookings</p>
+                    </div>
+                </div>
+
+                {{-- Lab Orders --}}
+                <div class="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div class="rounded-2xl bg-violet-50 p-3 text-violet-600 group-hover:bg-violet-500 group-hover:text-white transition-colors">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 3h6m-5 0v4m4-4v4m-6 6h6M6 7h12v12H6z" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400">Diagnostics</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="text-4xl font-black text-slate-950">{{ $stats['lab_requests'] }}</h4>
+                        <p class="mt-1 text-sm font-semibold text-slate-500">Lab Investigations</p>
+                    </div>
+                </div>
+
+                {{-- Prescriptions --}}
+                <div class="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div class="rounded-2xl bg-emerald-50 p-3 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400">Treatment</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="text-4xl font-black text-slate-950">{{ $prescriptions->count() }}</h4>
+                        <p class="mt-1 text-sm font-semibold text-slate-500">Active Prescriptions</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Recent Activity Log / Performance Breakdown --}}
+            <div class="grid gap-8 lg:grid-cols-2">
+                {{-- Distribution Chart (Simulated with bars) --}}
+                <div class="rounded-4xl border border-slate-200 bg-white p-8 shadow-sm">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h4 class="text-xl font-bold text-slate-950">Patient Demographics</h4>
+                            <p class="text-sm text-slate-500">Gender distribution of your patients.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        @php
+                            $maleCount = $assignedPatients->where('gender', 'male')->count();
+                            $femaleCount = $assignedPatients->where('gender', 'female')->count();
+                            $otherCount = $assignedPatients->where('gender', 'other')->count();
+                            $totalGender = max(1, $maleCount + $femaleCount + $otherCount);
+                        @endphp
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-slate-700">Male</span>
+                                <span class="text-sm font-bold text-slate-900">{{ round(($maleCount/$totalGender)*100) }}%</span>
+                            </div>
+                            <div class="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+                                <div class="h-full rounded-full bg-sky-500 transition-all duration-1000" style="width: {{ ($maleCount/$totalGender)*100 }}%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-slate-700">Female</span>
+                                <span class="text-sm font-bold text-slate-900">{{ round(($femaleCount/$totalGender)*100) }}%</span>
+                            </div>
+                            <div class="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+                                <div class="h-full rounded-full bg-rose-500 transition-all duration-1000" style="width: {{ ($femaleCount/$totalGender)*100 }}%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-slate-700">Other / Unspecified</span>
+                                <span class="text-sm font-bold text-slate-900">{{ round(($otherCount/$totalGender)*100) }}%</span>
+                            </div>
+                            <div class="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+                                <div class="h-full rounded-full bg-violet-500 transition-all duration-1000" style="width: {{ ($otherCount/$totalGender)*100 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-10 rounded-3xl border border-dashed border-slate-200 p-6">
+                        <p class="text-center text-sm font-medium text-slate-500">
+                            Based on your handled patient profiles. Update patient details during consultation for more accurate reporting.
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Status Distribution --}}
+                <div class="rounded-4xl border border-slate-200 bg-white p-8 shadow-sm">
+                    <h4 class="mb-8 text-xl font-bold text-slate-950">Appointment Outcomes</h4>
+                    <div class="grid gap-4">
+                        @php
+                            $totalAppts = max(1, $todayAppointments->count() + $upcomingAppointments->count() + $recentConsultations->count());
+                            $completed = $stats['completed_consultations'];
+                            $cancelled = 0; // Would need full count from DB ideally
+                        @endphp
+                        <div class="flex items-center gap-4 rounded-3xl border border-slate-100 bg-slate-50/50 p-4">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-slate-900">Successfully Completed</p>
+                                <p class="text-xs text-slate-500">Consultations that resulted in a prescription or treatment plan.</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-black text-slate-950">{{ $completed }}</p>
+                                <p class="text-[10px] font-bold text-emerald-600">Archived</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 rounded-3xl border border-slate-100 bg-slate-50/50 p-4">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-slate-900">Pending & Confirmed</p>
+                                <p class="text-xs text-slate-500">Current active workload requiring your clinical attention.</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-black text-slate-950">{{ $stats['pending_consultations'] }}</p>
+                                <p class="text-[10px] font-bold text-amber-600">Active</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 rounded-3xl border border-slate-100 bg-slate-50/50 p-4 opacity-75">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-100 text-rose-700">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-slate-900">Cancellations</p>
+                                <p class="text-xs text-slate-500">Appointments that were cancelled by you or the patient.</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-black text-slate-950">N/A</p>
+                                <p class="text-[10px] font-bold text-rose-600">Dismissed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        @endif
+        <div id="patient-drawer-overlay" class="fixed inset-0 z-40 hidden transition-all duration-500"></div>
+        <aside id="patient-drawer" class="fixed left-1/2 top-1/2 z-50 flex max-h-[88vh] w-[min(92vw,56rem)] -translate-x-1/2 -translate-y-1/2 scale-95 flex-col overflow-hidden opacity-0 pointer-events-none transition-all duration-500">
+            <div class="patient-drawer-header flex items-start justify-between gap-4 px-8 py-6">
+                <div class="space-y-2">
+                    <p class="inline-flex items-center rounded-full bg-blue-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.24em] text-blue-600 shadow-sm ring-1 ring-blue-500/20">Patient detail drawer</p>
+                    <h3 id="patient-drawer-name" class="text-3xl font-black tracking-tight text-[#0f172a]">Patient profile</h3>
+                    <p class="max-w-xl text-sm leading-6 text-[#64748b]">Quickly review contact details, demographics, and recent activity from one focused panel.</p>
+                </div>
+                <button type="button" id="close-patient-drawer" class="rounded-full bg-linear-to-r from-blue-600 to-indigo-700 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/40 active:translate-y-0">Close</button>
+            </div>
+            <div class="patient-drawer-scroll flex-1 space-y-12 overflow-y-auto px-8 py-6">
+                {{-- Demographics Section --}}
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-700 shadow-sm border border-sky-200">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-black tracking-tight text-slate-950">Patient details</h4>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Demographics & Contact</p>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+                        {{-- Phone --}}
+                        <div class="flex items-center gap-4 transition-transform hover:translate-x-1">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 shadow-sm border border-sky-100">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Phone Number</p>
+                                <p id="patient-drawer-phone" class="text-base font-bold text-slate-900 tracking-tight">—</p>
+                            </div>
+                        </div>
+
+                        {{-- Email --}}
+                        <div class="flex items-center gap-4 transition-transform hover:translate-x-1">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 shadow-sm border border-violet-100">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Email Address</p>
+                                <p id="patient-drawer-email" class="text-base font-bold text-slate-900 tracking-tight">—</p>
+                            </div>
+                        </div>
+
+                        {{-- Gender --}}
+                        <div class="flex items-center gap-4 transition-transform hover:translate-x-1">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 shadow-sm border border-rose-100">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Gender</p>
+                                <p id="patient-drawer-gender" class="text-base font-bold text-slate-900 tracking-tight">—</p>
+                            </div>
+                        </div>
+
+                        {{-- Blood Group --}}
+                        <div class="flex items-center gap-4 transition-transform hover:translate-x-1">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 shadow-sm border border-emerald-100">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Blood Group</p>
+                                <p id="patient-drawer-blood-group" class="text-base font-bold text-slate-900 tracking-tight">—</p>
+                            </div>
+                        </div>
+
+                        {{-- DOB --}}
+                        <div class="flex items-center gap-4 transition-transform hover:translate-x-1 sm:col-span-2">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 shadow-sm border border-amber-100">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Date of Birth</p>
+                                <p id="patient-drawer-dob" class="text-base font-bold text-slate-900 tracking-tight">—</p>
+                            </div>
+                        </div>
+
+                        {{-- Address --}}
+                        <div class="flex items-start gap-4 transition-transform hover:translate-x-1 sm:col-span-2">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-600 shadow-sm border border-slate-100">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">Residential Address</p>
+                                <p id="patient-drawer-address" class="text-base font-bold text-slate-900 leading-snug">—</p>
+                            </div>
+                        </div>
+
+                        {{-- Emergency Contact --}}
+                        <div class="flex items-center gap-4 transition-transform hover:translate-x-1 sm:col-span-2">
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-700 shadow-sm border border-rose-200">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-rose-500">Emergency Contact</p>
+                                <p id="patient-drawer-emergency" class="text-base font-bold text-slate-900 tracking-tight">—</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- History Section --}}
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-sm border border-emerald-200">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-black tracking-tight text-slate-950">Clinical history</h4>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Recent Activity</p>
+                            </div>
+                        </div>
+                        <span id="patient-drawer-visits" class="rounded-full bg-slate-900 px-4 py-1.5 text-xs font-bold text-white shadow-lg shadow-slate-950/20">0 visits</span>
+                    </div>
+                    <div id="patient-drawer-history" class="space-y-3"></div>
                 </div>
             </div>
         </aside>
 
         <style>
+            #patient-drawer-overlay {
+                background: rgba(15, 23, 42, 0.18);
+                backdrop-filter: blur(6px);
+            }
+
+            #patient-drawer {
+                background: 
+                    radial-gradient(circle at top left, #dbeafe 0%, transparent 35%),
+                    radial-gradient(circle at bottom right, #bfdbfe 0%, transparent 35%),
+                    linear-gradient(135deg, #f8fbff, #eef5ff);
+                background-size: 200% 200%;
+                animation: mesh-gradient-move 12s ease infinite;
+                backdrop-filter: blur(18px);
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+                border-radius: 28px;
+            }
+
+            .patient-drawer-header {
+                background:
+                    radial-gradient(
+                        circle at top right,
+                        rgba(37, 99, 235, 0.12),
+                        transparent 35%
+                    ),
+                    linear-gradient(
+                        135deg,
+                        #f8fbff 0%,
+                        #dbeafe 100%
+                    );
+                border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+                backdrop-filter: blur(10px);
+                border-top-left-radius: 28px;
+                border-top-right-radius: 28px;
+            }
+
+            #patient-drawer-name {
+                text-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+            }
+
+            @keyframes mesh-gradient-move {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+
+            .history-entry-card {
+                background: rgba(255, 255, 255, 0.78);
+                backdrop-filter: blur(8px);
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                border-radius: 20px;
+                padding: 1rem;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .history-entry-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+            }
+
             .patient-drawer-scroll {
                 scrollbar-width: none;
                 -ms-overflow-style: none;
@@ -1009,9 +1327,9 @@
             }
             /* History entry animation */
             .history-entry {
-                transform: translateY(6px) scale(0.995);
+                transform: translateY(10px) scale(0.99);
                 opacity: 0;
-                transition: transform 360ms cubic-bezier(.2,.9,.35,1), opacity 360ms ease;
+                transition: transform 400ms cubic-bezier(.2, .9, .35, 1), opacity 400ms ease;
             }
 
             .history-entry.visible {

@@ -28,7 +28,6 @@ class DashboardController extends Controller
             ['label' => 'Prescriptions', 'href' => route('doctor.prescriptions'), 'route' => 'doctor.prescriptions', 'icon' => 'M12 20.25c4.97 0 9-4.03 9-9s-4.03-9-9-9-9 4.03-9 9 4.03 9 9 9z'],
             ['label' => 'Labs & EMR', 'href' => route('doctor.labs'), 'route' => 'doctor.labs', 'icon' => 'M6 3v18m12-18v18M6 6h12M6 18h12'],
             ['label' => 'Schedule', 'href' => route('doctor.schedule'), 'route' => 'doctor.schedule', 'icon' => 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5'],
-            ['label' => 'Notifications', 'href' => route('doctor.notifications'), 'route' => 'doctor.notifications', 'icon' => 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31'],
             ['label' => 'Reports', 'href' => route('doctor.reports'), 'route' => 'doctor.reports', 'icon' => 'M3 3v18h18M7 14l3-3 4 4 5-7'],
             ['label' => 'Profile', 'href' => route('doctor.profile'), 'route' => 'doctor.profile', 'icon' => 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0'],
         ];
@@ -36,6 +35,7 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
+        /** @var \App\Models\User|null $user */
         $user = Auth::user();
         abort_unless($user && $user->role === 'doctor', 403);
 
@@ -53,6 +53,7 @@ class DashboardController extends Controller
             default => 'overview',
         };
 
+        /** @var \App\Models\Doctor|null $doctor */
         $doctor = $user->doctor;
         $today = now()->toDateString();
         $statusLabels = [
@@ -154,6 +155,7 @@ class DashboardController extends Controller
 
         $patientHistory = [];
 
+        /** @var \Illuminate\Support\Collection|\App\Models\Patient[] $assignedPatients */
         foreach ($assignedPatients as $patient) {
             $patientHistory[$patient->id] = $patientHistorySource
                 ->where('patient_id', $patient->id)

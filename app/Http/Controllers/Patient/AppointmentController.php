@@ -38,9 +38,21 @@ class AppointmentController extends Controller
         if (! $patient) {
             $patient = Patient::create([
                 'user_id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'gender' => $data['gender'],
+                'dob' => now()->subYears($data['age'])->startOfYear(),
+            ]);
+        } else {
+            // Sync patient record with the latest info from the booking form
+            $patient->update([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'gender' => $data['gender'],
+                // Only update DOB if it was never set, or if we want to refresh it based on age
+                'dob' => $patient->dob ?: now()->subYears($data['age'])->startOfYear(),
             ]);
         }
 

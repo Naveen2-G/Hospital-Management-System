@@ -478,7 +478,7 @@ if (loginForm) {
                     document.querySelectorAll('meta[name="csrf-token"]').forEach(el => el.content = data.csrf_token);
                     document.querySelectorAll('input[name="_token"]').forEach(el => el.value = data.csrf_token);
                 }
-                
+
                 // Success — show green state then redirect
                 btn.innerHTML = '✓ Signed in successfully!';
                 btn.classList.remove('from-primary-500', 'to-primary-600');
@@ -486,16 +486,16 @@ if (loginForm) {
                 setTimeout(() => {
                     const pendingRegular = sessionStorage.getItem('pending_regular_appointment');
                     const pendingSpecial = sessionStorage.getItem('pending_special_booking');
-                    
+
                     if (pendingRegular && (document.getElementById('appointment-modal'))) {
                         closeModal('login-modal');
                         btn.innerHTML = '✓ Finalizing Appointment...';
-                        
+
                         setTimeout(() => {
                             const confirmBtn = document.getElementById('apt-confirm-btn');
                             if (confirmBtn) {
                                 openModal('appointment-modal');
-                                showAptStep(2); 
+                                showAptStep(2);
                                 confirmBtn.click();
                             } else {
                                 window.location.href = data.redirect || '/patient/dashboard';
@@ -504,7 +504,7 @@ if (loginForm) {
                     } else if (pendingSpecial && (document.getElementById('special-booking-modal'))) {
                         closeModal('login-modal');
                         btn.innerHTML = '✓ Finalizing Request...';
-                        
+
                         setTimeout(() => {
                             const specialSubmitBtn = document.getElementById('sb-submit-btn');
                             if (specialSubmitBtn) {
@@ -746,16 +746,16 @@ if (appointmentForm) {
     appointmentForm.addEventListener('submit', async (e) => {
         console.log('Appointment form submitted');
         e.preventDefault();
-        
+
         const submitBtn = document.getElementById('apt-confirm-btn');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Booking...';
-        
+
         try {
             // Collect form data using the constructor on the form element
             const formData = new FormData(appointmentForm);
-            
+
             // Handle resumption data if the form is empty (e.g. after a page reload)
             const pendingData = sessionStorage.getItem('pending_regular_appointment');
             if (pendingData && formData.get('name') === '') {
@@ -766,7 +766,7 @@ if (appointmentForm) {
                     }
                 });
             }
-            
+
             // Submit the form
             const response = await fetch(appointmentForm.action, {
                 method: 'POST',
@@ -795,22 +795,22 @@ if (appointmentForm) {
                 console.log('Authentication required detected (401/403). Opening auth modal.');
                 const dataToSave = Object.fromEntries(formData.entries());
                 sessionStorage.setItem('pendingAppointment', JSON.stringify(dataToSave));
-                
+
                 // Close current modal first to ensure context is clear
                 closeModal('appointment-modal');
-                
+
                 // Show professional modal instead of inline message
                 setTimeout(() => {
                     openModal('auth-required-modal');
                 }, 100);
-                
+
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
                 return;
             }
 
             const data = await response.json();
-            
+
             if (response.ok && data.success) {
                 sessionStorage.removeItem('pendingAppointment');
                 // Show success state
@@ -849,7 +849,7 @@ if (specialBookingForm) {
     // Handle department change for doctor filtering
     const sbDept = document.getElementById('sb-department');
     const sbDoc = document.getElementById('sb-doctor');
-    
+
     if (sbDept && sbDoc) {
         sbDept.addEventListener('change', () => {
             const deptId = sbDept.value;
@@ -880,7 +880,7 @@ if (specialBookingForm) {
         if (!name.value.trim()) { valid = false; name.classList.add('input-error'); } else { name.classList.remove('input-error'); }
         if (!phone.value.trim() || !/^[0-9+\s()-]{10,15}$/.test(phone.value.trim())) { valid = false; phone.classList.add('input-error'); } else { phone.classList.remove('input-error'); }
         if (!reason.value.trim()) { valid = false; reason.classList.add('input-error'); } else { reason.classList.remove('input-error'); }
-        
+
         if (!dept.value) { valid = false; dept.classList.add('input-error'); } else { dept.classList.remove('input-error'); }
         if (!doc.value) { valid = false; doc.classList.add('input-error'); } else { doc.classList.remove('input-error'); }
 
@@ -895,7 +895,7 @@ if (specialBookingForm) {
                 formData.append('phone', phone.value.trim());
                 formData.append('reason', reason.value.trim());
                 formData.append('service', service.value);
-                
+
                 formData.append('department', dept.value);
                 formData.append('doctor', doc.value);
 
@@ -1306,11 +1306,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (params.get('resume_booking') === '1') {
         const dataRegularStr = sessionStorage.getItem('pending_regular_appointment');
         const dataSpecialStr = sessionStorage.getItem('pending_special_booking');
-        
+
         if (dataRegularStr) {
             try {
                 const data = JSON.parse(dataRegularStr);
-                
+
                 // Populate the form fields manually since they have distinct IDs
                 const mapping = {
                     'name': 'apt-name',
@@ -1323,32 +1323,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     'time_slot': 'apt-time',
                     'notes': 'apt-reason'
                 };
-                
+
                 for (const [key, id] of Object.entries(mapping)) {
                     const el = document.getElementById(id);
                     if (el && data[key]) el.value = data[key];
                 }
-                
+
                 // Handle gender radio
                 if (data['gender']) {
                     const radio = document.querySelector(`input[name="gender"][value="${data['gender']}"]`);
                     if (radio) radio.checked = true;
                 }
-                
+
                 // Open modal and skip to Step 3
                 openModal('appointment-modal');
-                
+
                 // Wait slightly for modal to render, then simulate "Continue" clicks to populate summary
                 setTimeout(() => {
                     document.getElementById('apt-next-1')?.click();
                     document.getElementById('apt-next-2')?.click();
                 }, 100);
-                
-            } catch(e) {
+
+            } catch (e) {
                 console.error('Error restoring appointment data', e);
             }
         }
-        
+
         // Clean URL
         const url = new URL(window.location);
         url.searchParams.delete('resume_booking');
