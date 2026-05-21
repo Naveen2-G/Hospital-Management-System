@@ -125,7 +125,7 @@
             ];
         @endphp
 
-        <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl shadow-sm">
+        <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-gradient-to-b from-white/80 to-slate-50/70 backdrop-blur-xl shadow-sm">
             <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <a href="{{ route('doctor.dashboard') }}" class="flex items-center gap-3">
@@ -198,7 +198,7 @@
                 </div>
             </div>
 
-            <div class="border-t border-slate-200/80 bg-linear-to-r from-white via-sky-50/40 to-white">
+            <div class="border-t border-slate-200/80 bg-linear-to-r from-slate-50 via-white/60 to-slate-50">
                 <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <nav class="flex items-center gap-2 overflow-x-auto py-3" style="scrollbar-width: none; -ms-overflow-style: none;">
                         <style>
@@ -208,10 +208,10 @@
                             @php
                                 $isActive = isset($item['route']) && request()->routeIs($item['route']);
                             @endphp
-                            <a href="{{ $item['href'] }}" class="doctor-nav-link group inline-flex shrink-0 items-center gap-2 rounded-xl border border-transparent bg-white/70 px-3 py-2 text-sm font-semibold text-slate-600 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 transition-all duration-200 {{ $isActive ? 'is-active border-sky-200 bg-sky-50 text-sky-700 underline decoration-2 decoration-sky-500 underline-offset-8 shadow-sm' : '' }}">
-                                <svg class="w-4 h-4 text-slate-400 group-hover:text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}"/>
-                                </svg>
+                            <a href="{{ $item['href'] }}" class="doctor-nav-link group inline-flex shrink-0 items-center gap-2 rounded-xl border border-transparent bg-slate-50/75 px-3 py-2 text-sm font-semibold text-slate-600 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 transition-all duration-200 {{ $isActive ? 'is-active border-sky-200 bg-sky-50 text-sky-700 underline decoration-2 decoration-sky-500 underline-offset-8 shadow-sm' : '' }}">
+                                                                <svg class="w-5 h-5 text-slate-500 group-hover:text-indigo-600 transition-colors duration-200 ease-in-out opacity-95 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}"/>
+                                                                </svg>
                                 <span>{{ $item['label'] }}</span>
                             </a>
                         @endforeach

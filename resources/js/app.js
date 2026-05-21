@@ -1134,14 +1134,20 @@ if (packageCheckoutForm) {
 
         try {
             const formData = new FormData(packageCheckoutForm);
+            console.log('Package checkout action:', packageCheckoutForm.action);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const headers = { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' };
+            if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken;
+
             const resp = await fetch(packageCheckoutForm.action, {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                headers,
                 body: formData,
                 redirect: 'follow'
             });
 
             // If server returns JSON with url, redirect there
+            console.log('Package checkout response status:', resp.status, resp.statusText);
             const data = await resp.json().catch(() => null);
             if (resp.ok && data && data.url) {
                 window.location.href = data.url;
@@ -1159,8 +1165,8 @@ if (packageCheckoutForm) {
             if (data && data.message) msg = data.message;
             alert(msg);
         } catch (err) {
-            console.error('Checkout error', err);
-            alert('Network error while initiating payment.');
+            console.error('Checkout error', err, err.name, err.message);
+            alert('Network error while initiating payment. (' + (err.message || err.name) + ')');
         } finally {
             btn.textContent = origText;
             btn.disabled = false;

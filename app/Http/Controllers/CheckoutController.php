@@ -85,6 +85,11 @@ class CheckoutController extends Controller
                 ],
             ]);
 
+            // If this was an AJAX / fetch call, return JSON with the URL so the client can navigate.
+            if (request()->expectsJson() || request()->ajax() || request()->wantsJson()) {
+                return response()->json(['url' => $checkout_session->url]);
+            }
+
             return redirect($checkout_session->url);
         } catch (\Exception $e) {
             return back()->with('error', 'Error creating payment session: ' . $e->getMessage());

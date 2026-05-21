@@ -21,15 +21,16 @@ class DashboardController extends Controller
     private function sidebarItems(): array
     {
         return [
-            ['label' => 'Overview', 'href' => route('doctor.dashboard'), 'route' => 'doctor.dashboard', 'icon' => 'M3 13h18M3 6h18M3 20h18'],
+            ['label' => 'Overview', 'href' => route('doctor.dashboard'), 'route' => 'doctor.dashboard', 'icon' => 'M3 12h18M3 6h18M3 18h18'],
             ['label' => 'Appointments', 'href' => route('doctor.appointments'), 'route' => 'doctor.appointments', 'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
-            ['label' => 'Patients', 'href' => route('doctor.patients'), 'route' => 'doctor.patients', 'icon' => 'M12 12a5 5 0 100-10 5 5 0 000 10zm6 8v-2a6 6 0 00-12 0v2'],
-            ['label' => 'Consultations', 'href' => route('doctor.consultations'), 'route' => 'doctor.consultations', 'icon' => 'M7.5 8.25h9m-9 4.5h9m-9 4.5H12M9.75 3h4.5c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 018.625 6.375v-2.25C8.625 3.504 9.129 3 9.75 3z'],
-            ['label' => 'Prescriptions', 'href' => route('doctor.prescriptions'), 'route' => 'doctor.prescriptions', 'icon' => 'M12 20.25c4.97 0 9-4.03 9-9s-4.03-9-9-9-9 4.03-9 9 4.03 9 9 9z'],
-            ['label' => 'Labs & EMR', 'href' => route('doctor.labs'), 'route' => 'doctor.labs', 'icon' => 'M6 3v18m12-18v18M6 6h12M6 18h12'],
-            ['label' => 'Schedule', 'href' => route('doctor.schedule'), 'route' => 'doctor.schedule', 'icon' => 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5'],
+            ['label' => 'Patients', 'href' => route('doctor.patients'), 'route' => 'doctor.patients', 'icon' => 'M16 11c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM6 20v-1a4 4 0 014-4h4a4 4 0 014 4v1'],
+            ['label' => 'Consultations', 'href' => route('doctor.consultations'), 'route' => 'doctor.consultations', 'icon' => 'M8 10h8M8 14h6M21 12c0 4.418-4.03 8-9 8-1.115 0-2.173-.18-3.142-.504L3 21l1.504-5.858C3.681 14.173 3 13.11 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'],
+            ['label' => 'Prescriptions', 'href' => route('doctor.prescriptions'), 'route' => 'doctor.prescriptions', 'icon' => 'M9 12h6M9 16h6M12 8v8M4 6h16v12H4z'],
+            ['label' => 'Labs & EMR', 'href' => route('doctor.labs'), 'route' => 'doctor.labs', 'icon' => 'M12 8c1.657 0 3-1.343 3-3S13.657 2 12 2 9 3.343 9 5s1.343 3 3 3zM6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2'],
+            ['label' => 'Schedule', 'href' => route('doctor.schedule'), 'route' => 'doctor.schedule', 'icon' => 'M8 7V3m8 4V3M3 11h18M7 21h10'],
+            ['label' => 'Notifications', 'href' => route('doctor.notifications'), 'route' => 'doctor.notifications', 'icon' => 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1h6z'],
             ['label' => 'Reports', 'href' => route('doctor.reports'), 'route' => 'doctor.reports', 'icon' => 'M3 3v18h18M7 14l3-3 4 4 5-7'],
-            ['label' => 'Profile', 'href' => route('doctor.profile'), 'route' => 'doctor.profile', 'icon' => 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0'],
+            ['label' => 'Profile', 'href' => route('doctor.profile'), 'route' => 'doctor.profile', 'icon' => 'M5.121 17.804A9 9 0 0112 15a9 9 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z'],
         ];
     }
 
@@ -243,6 +244,18 @@ class DashboardController extends Controller
             $patientTimeline[$pid] = array_slice($merged, 0, 12);
         }
 
+            // Build appointment feed: today's appointments first, then previous days (most recent first)
+            $recentRangeStart = now()->subDays(30)->toDateString();
+            $appointmentFeed = Appointment::with(['patient', 'department'])
+                ->where('doctor_id', $doctorId)
+                ->whereDate('appointment_date', '>=', $recentRangeStart)
+                ->orderByRaw("(appointment_date = '{$today}') DESC")
+                ->orderByRaw("CASE WHEN appointment_date = '{$today}' THEN time_slot END ASC")
+                ->orderByDesc('appointment_date')
+                ->orderByDesc('time_slot')
+                ->limit(40)
+                ->get();
+
         $prescriptions = Prescription::with(['patient', 'appointment'])
             ->where('doctor_id', $doctorId)
             ->latest()
@@ -327,6 +340,7 @@ class DashboardController extends Controller
             'patientHistory' => $patientHistory,
             'patientTimeline' => $patientTimeline,
             'statusLabels' => $statusLabels,
+            'appointmentFeed' => $appointmentFeed,
         ]);
     }
 
